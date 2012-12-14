@@ -71,6 +71,13 @@ protected:
 	std::vector<PxVec3>				mPos;
 	std::vector<PxVec3>				mNormal;
 	std::vector<PxU32>				mIndices;
+	//------------------------------PVD
+	const char*						pvd_host_ip;
+	const char*						fileName;
+	int								port;
+	unsigned int					timeOut;
+	PVD::PxVisualDebuggerConnectionFlags conFlags;
+	PVD::PvdConnection*				pCon;
 public:
 	//Description
 	//Constructor
@@ -340,7 +347,7 @@ public:
 		//check if the criteria are met
 		PX_ASSERT(mMeshDesc.isValid() );
 		if( !mCooking->cookClothFabric( mMeshDesc, mGravity, wb) )
-			printf("Error cooking the cloth fibic!");
+			printf("Error cooking the cloth fabric!");
 		PxToolkit::MemoryInputData rb( wb.getData(), wb.getSize() );
 		mFabric = mPhysX->createClothFabric( rb );
 		physx::PxTransform tr;
@@ -387,13 +394,52 @@ public:
 		return mCloth;
 	}
 
+	virtual const bool StartPvdNetwork()
+	{
+		printf("Starting connection with PVD ...\n");
+		//check for compatybility with the current system
+		if( mPhysX->getPvdConnectionManager() == NULL )
+		{
+			printf("Connection failed, could not establish manager!\n");
+			return false;
+		}
+		//connection parameters
+		pvd_host_ip = "127.0.0.1";	//address IP with PVD running
+		port		= 5425;			//TCP port to connect to,where PVD is listening
+		timeOut		= 100;			//timeout in milliseconds to wait for PVD respond
+									//consoles and remote PCs need a higher timeout.
+		printf("Cration of parameters finished.\n");
+		conFlags = PVD::PxVisualDebuggerExt::getAllConnectionFlags();
+		printf("Flags created.\n");
+		pCon = PVD::PxVisualDebuggerExt::createConnection( mPhysX->getPvdConnectionManager(),
+			pvd_host_ip,port,timeOut,conFlags);
+		return true;
+	}
+	virtual const bool StartPvdFile()
+	{
+		printf("Checking compatybility.\n");
+		//check for compatybility with the current system
+		if( mPhysX->getPvdConnectionManager() == NULL )
+		{
+			printf("Could not establish manager");
+			return false;
+		}
+		//file parameters
+		fileName = "D:/PvdCapture.pxd2";	//name of the file containing capture
+		conFlags = PVD::PxVisualDebuggerExt::getAllConnectionFlags();
+		//attempt to connect
+		pCon = PVD::PxVisualDebuggerExt::createConnection( mPhysX->getPvdConnectionManager(),fileName, conFlags );
+		printf("saving to file should work now.\n");
+		return true;
+	}
+
 	//Destructor
 	~CMutex()
 	{
 		mPhysX->release();
 		//mFoundation->release();
-		/*if( PVDConnection )
-			PVDConnection->release();*/
+		if( pCon )
+			pCon->release();
 	}
 	/*class PxDefaultAllocator : public physx::PxAllocatorCallback
 	{

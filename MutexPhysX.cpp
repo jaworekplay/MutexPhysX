@@ -37,6 +37,11 @@ int main()
 	ICustomEventReceiver* rec = new ICustomEventReceiver();
 	rec->startEventProcess();
 
+	//-----------------------------PVD--------------------------
+	if( mute->StartPvdNetwork() )
+		std::cout << "woo hoo\n";
+	////////////////////////////////////////////////////////////
+
 	irr::core::dimension2d<irr::u32> size = irr::core::dimension2d<irr::u32>(1024,768);
 	irr::video::E_DRIVER_TYPE driverType = irr::driverChoiceConsole();
 	if( driverType == irr::video::EDT_COUNT )
@@ -68,7 +73,7 @@ int main()
 		&smgr->getVideoDriver()->getMaterial2D(), 
 		irr::core::dimension2d<irr::f32>(10,10) );
 	irr::scene::ISceneNode* cloth = smgr->addMeshSceneNode( clothMesh,0,-1, irr::core::vector3df(0.f,20.f,0.f) );
-	mute->CreateCloth();
+	//mute->CreateCloth();
 	//------------------ALPHA !!!
 	
 	PxVec3 pos(PxVec3(0.f,0.f,0.f));
@@ -85,7 +90,7 @@ int main()
 	{
 		node[i] = physicsActor[i]->getIrrNode();
 		//node[i]->setDebugDataVisible(-1);
-		node[i]->setMaterialTexture(0, driver->getTexture("/media/wall.bmp") );
+		node[i]->setMaterialTexture(0, driver->getTexture("D:/media/wall.bmp") );
 		node[i]->setMaterialFlag(irr::video::EMF_LIGHTING, false );
 	}
 	
@@ -115,7 +120,7 @@ int main()
 		//update for debugging
 		mute->advance(0.05);
 		//actor
-		for(int i = 0; i < 500; ++i)
+		for(int i = 0; i < MAX; ++i)
 			physicsActor[i]->updatePos();
 
 		driver->beginScene( true, true, irr::video::SColor(0,100,100,100) );

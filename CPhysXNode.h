@@ -39,7 +39,7 @@ public:
 		rot.Y = pose.q.y;
 		rot.Z = pose.q.z;
 		rot.W = pose.q.w;
-		irrActor->setRotation(rot.getMatrix().getRotationDegrees());
+		irrActor->setRotation(mutex->GetRotationFromPhysX(pose.q) );
 	}
 	irr::scene::ISceneNode* getIrrNode() const { return irrActor; }
 	physx::PxRigidDynamic* getPhysXActor() const { return pxActor; }

@@ -27,7 +27,7 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v100</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -41,13 +41,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>D:\Irrlicht\irrlicht-1.7.3\source\Irrlicht;D:\Irrlicht\PhysX 3.2.1\Include;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;H:\Irrlicht\Source\irrKlang-1.4.0\include;H:\Irrlicht\Source\PhysX\Include;H:\Irrlicht\Source\irrlicht-1.7.3\include;D:\Irrlicht\irrlicht-1.7.3\include;$(IncludePath)</IncludePath>
-    <LibraryPath>H:\Irrlicht\Source\irrKlang-1.4.0\lib\Win32-visualStudio;H:\Irrlicht\Source\PhysX\Lib\win32;H:\Irrlicht\Source\irrlicht-1.7.3\lib\Win32-visualstudio;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86;D:\Irrlicht\PhysX 3.2.1\Lib\win32;D:\Irrlicht\irrlicht-1.7.3\lib\Win32-visualstudio;C:\irrlicht-1.7.3\lib\Win32-visualstudio;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\Irrlicht\PhysX 3.2.1\Include\RepX;D:\Irrlicht\PhysX 3.2.1\Source\foundation\include;D:\Irrlicht\PhysX 3.2.1\Samples\PxToolkit\include;D:\Irrlicht\irrlicht-1.7.3\source\Irrlicht;D:\Irrlicht\PhysX 3.2.1\Include;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;H:\Irrlicht\Source\irrKlang-1.4.0\include;H:\Irrlicht\Source\PhysX\Include;H:\Irrlicht\Source\irrlicht-1.7.3\include;D:\Irrlicht\irrlicht-1.7.3\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\Irrlicht\PhysX 3.2.1\Samples\PxToolkit\lib\win32;H:\Irrlicht\Source\irrKlang-1.4.0\lib\Win32-visualStudio;H:\Irrlicht\Source\PhysX\Lib\win32;H:\Irrlicht\Source\irrlicht-1.7.3\lib\Win32-visualstudio;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86;D:\Irrlicht\PhysX 3.2.1\Lib\win32;D:\Irrlicht\irrlicht-1.7.3\lib\Win32-visualstudio;C:\irrlicht-1.7.3\lib\Win32-visualstudio;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>D:\Irrlicht\irrlicht-1.7.3\source\Irrlicht;F:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;D:\Irrlicht\PhysX 3.2.1\Include;D:\Irrlicht\irrlicht-1.7.3\include;$(IncludePath)</IncludePath>
-    <LibraryPath>F:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86;D:\Irrlicht\PhysX 3.2.1\Lib\win32;D:\Irrlicht\irrlicht-1.7.3\lib\Win32-visualstudio;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\Irrlicht\PhysX 3.2.1\Include\RepX;D:\Irrlicht\PhysX 3.2.1\Samples\PxToolkit\include;D:\Irrlicht\PhysX 3.2.1\Source\foundation\include;D:\Irrlicht\irrlicht-1.7.3\source\Irrlicht;F:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;D:\Irrlicht\PhysX 3.2.1\Include;D:\Irrlicht\irrlicht-1.7.3\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\Irrlicht\PhysX 3.2.1\Samples\PxToolkit\lib\win32;F:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86;D:\Irrlicht\PhysX 3.2.1\Lib\win32;D:\Irrlicht\irrlicht-1.7.3\lib\Win32-visualstudio;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -62,8 +62,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <IgnoreSpecificDefaultLibraries>
-      </IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>libcpmt.lib;libcmt.lib;</IgnoreSpecificDefaultLibraries>
       <ShowProgress>LinkVerboseLib</ShowProgress>
     </Link>
   </ItemDefinitionGroup>
@@ -82,6 +81,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
