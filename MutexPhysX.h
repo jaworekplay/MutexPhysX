@@ -78,6 +78,11 @@ protected:
 	unsigned int					timeOut;
 	PVD::PxVisualDebuggerConnectionFlags conFlags;
 	PVD::PvdConnection*				pCon;
+	//------------------------------Pyramid
+	physx::PxConvexMesh*			pyr;
+	physx::PxConvexMeshDesc			pyrDesc;
+	physx::PxShape*					pyrShape;
+	physx::PxRigidDynamic*			pyrAct;
 public:
 	//Description
 	//Constructor
@@ -394,6 +399,13 @@ public:
 		return mCloth;
 	}
 
+	//Description
+	//This method will create connection between PhysX application
+	//and PC with PVD on over the network.
+	//returns true if connection was a success.
+	//TODO:
+	//pass ip address to the PC.
+
 	virtual const bool StartPvdNetwork()
 	{
 		printf("Starting connection with PVD ...\n");
@@ -415,6 +427,9 @@ public:
 			pvd_host_ip,port,timeOut,conFlags);
 		return true;
 	}
+	//Description
+	//This method will create file that can be opened by PVD.
+	//Returns true if creation was success
 	virtual const bool StartPvdFile()
 	{
 		printf("Checking compatybility.\n");
@@ -431,6 +446,32 @@ public:
 		pCon = PVD::PxVisualDebuggerExt::createConnection( mPhysX->getPvdConnectionManager(),fileName, conFlags );
 		printf("saving to file should work now.\n");
 		return true;
+	}
+	virtual const bool CreatePyramid()
+	{
+		static const PxVec3 verts[] = {PxVec3(0,1,0), PxVec3(1,0,0), PxVec3(-1,0,0), PxVec3(0,0,1), PxVec3(0,0,-1)};
+		pyrDesc.points.count = 5;
+		pyrDesc.points.stride = sizeof(PxVec3);
+		pyrDesc.points.data = verts;
+		pyrDesc.flags = physx::PxConvexFlag::eCOMPUTE_CONVEX;
+		PxToolkit::MemoryOutputStream buf;
+		if( !mCooking->cookConvexMesh( pyrDesc, buf ) )
+		{
+			printf("Creation of convex mesh has failed!\n");
+			return false;
+		}
+		else
+		{
+			printf("Convex shape creation - SUCCESS\n");
+			PxToolkit::MemoryInputData input(buf.getData(), buf.getSize() );
+			pyr = mPhysX->createConvexMesh( input );
+			pyrAct = mPhysX->createRigidDynamic( physx::PxTransform( PxVec3(0,15,0) ) );
+			pyrShape = pyrAct->createShape( physx::PxConvexMeshGeometry( pyr ), *mMaterial );// remember to give dereferenced pointer for materials ^_^
+			mScene->addActor( *pyrAct );
+			printf("STATUS || Convex mesh = TRUE;\n");
+			return true;
+		}
+	return false;
 	}
 
 	//Destructor

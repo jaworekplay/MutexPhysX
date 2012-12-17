@@ -28,7 +28,7 @@ physx::PxFoundation* initPhysX()
 
 //jaworekplay
 //I thought it would be easier to use constant value to define number of actors in the scene
-const unsigned __int16 MAX = 20; 
+const unsigned __int16 MAX = 100; 
 
 int main()
 {
@@ -40,6 +40,12 @@ int main()
 	//-----------------------------PVD--------------------------
 	if( mute->StartPvdNetwork() )
 		std::cout << "woo hoo\n";
+	////////////////////////////////////////////////////////////
+	//----------------------------Convex shape------------------
+	if( mute->CreatePyramid() )
+		printf(" woop woop!\n");
+	else
+		std::cout << ";/";
 	////////////////////////////////////////////////////////////
 
 	irr::core::dimension2d<irr::u32> size = irr::core::dimension2d<irr::u32>(1024,768);
