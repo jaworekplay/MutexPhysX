@@ -79,7 +79,7 @@ int main()
 		&smgr->getVideoDriver()->getMaterial2D(), 
 		irr::core::dimension2d<irr::f32>(10,10) );
 	irr::scene::ISceneNode* cloth = smgr->addMeshSceneNode( clothMesh,0,-1, irr::core::vector3df(0.f,20.f,0.f) );
-	//mute->CreateCloth();
+	mute->CreateCloth();
 	//------------------ALPHA !!!
 	
 	PxVec3 pos(PxVec3(0.f,0.f,0.f));

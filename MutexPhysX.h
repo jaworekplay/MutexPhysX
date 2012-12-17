@@ -282,7 +282,7 @@ public:
 		float hh = h / 2.f;
 		float d = 0.2f;
 		//					this is short hand version of casting result of division into the int type
-		//				  / full version would be static_cast<int>(w / d);
+		//				  / full version would be static_cast<int>((w / d) + 1);
 		//		   |    \/_   |
 		int numX = (int)(w / d) +1;
 		int numY = (int)(h / d) +1;
@@ -382,8 +382,9 @@ public:
 		mPlane.normal = physx::PxVec3(0.f,1.f,0.f);
 		mPlane.distance = 0.f;
 		physx::PxU32 convMask = 1;//Convex references to the first plane only
-		mCloth->addCollisionPlane( mPlane );
-		mCloth->addCollisionConvex( convMask );
+		//mCloth->addCollisionPlane( mPlane );
+		//mCloth->addCollisionConvex( convMask );
+		mCloth->userData = this;
 		mCloth->setClothFlag( physx::PxClothFlag::eSWEPT_CONTACT, true);
 		mCloth = mPhysX->createCloth( pose, *mFabric, mPoints, cd, physx::PxClothFlag::eSWEPT_CONTACT);
 		mCps.solverType = physx::PxClothPhaseSolverConfig::eFAST;
