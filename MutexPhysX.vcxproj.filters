@@ -47,5 +47,8 @@
     <ClInclude Include="includes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="XMLManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

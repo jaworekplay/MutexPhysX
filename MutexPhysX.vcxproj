@@ -97,6 +97,7 @@
     <ClInclude Include="INfo.h" />
     <ClInclude Include="libraries.h" />
     <ClInclude Include="MutexPhysX.h" />
+    <ClInclude Include="XMLManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
