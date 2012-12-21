@@ -3,6 +3,7 @@
 
 using namespace irr;
 using namespace core;
+
 class CXMLManager
 {
 private:
@@ -44,11 +45,16 @@ public:
 	{
 		if( !device )
 			return false;
+
 		irr::io::IXMLReader* xml = device->getFileSystem()->createXMLReader( settingFile );
+		
 		if( !xml )
 			return false;
+
 		const core::stringw settingTag(L"setting"); //tag responsible for settings in the xml file
+		
 		stringw currentSection;
+
 		const stringw videoTag(L"Video");
 
 		while( xml->read() )
@@ -76,4 +82,64 @@ public:
 		xml->drop();
 		return true;
 	}//end of bool load()
+
+	virtual void setSetting(const stringw& name, const stringw& value)
+	{
+		managerSettings[name] = value;
+	}
+
+	virtual stringw getSettings( const stringw& key ) const
+	{
+		map<stringw, stringw>::Node* n = managerSettings.find( key );
+		if(n)
+			return n->getValue();
+		else
+			return L"";
+	}
+
+	virtual bool getSettingAsBoolean( const stringw& key ) const
+	{
+		stringw s = getSettings(key);
+		if(s.size() == 0 )
+			return false;
+		return
+			s.equals_ignore_case(L"1");
+	}
+
+	virtual s32 getSettingsAsInteger( const stringw& key ) const
+	{
+		const stringc s = getSettings(key);
+		if( s.size() == 0 )
+			return 0;
+		return core::strtol10(s.c_str() );
+	}
 };//end of class
+
+struct SAppContext
+{
+	SAppContext()
+		:device(0),gui(0),driver(0),setting(0),quit(false),
+		buttonSave(0),buttonExit(0),listboxDriver(0),listboxResolution(0),checkboxFullscreen(0) {}
+	~SAppContext()
+	{
+		if( setting )
+			delete setting;
+		if( device )
+		{
+			device->closeDevice();
+			device->drop();
+		}
+	}
+	IrrlichtDevice*		device;
+	gui::IGUIEnvironment* gui;
+	video::IVideoDriver* driver;
+	CXMLManager*		setting;
+	bool				quit;
+
+	//dialog
+	gui::IGUIButton*	buttonSave;
+	gui::IGUIButton*	buttonExit;
+	gui::IGUIListBox*	listboxDriver;
+	gui::IGUIListBox*	listboxResolution;
+	gui::IGUICheckBox*	checkboxFullscreen;
+};

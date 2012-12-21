@@ -24,7 +24,11 @@
 V0.001	 - 	*Corrected the irrlicht Sphere node to match the physical size of the PhysX Sphere node.															// Leo
 *****************************************************************************			
 
-
+jaworekplay UPDATE 15/11/2012
+**Added some comments to the code
+**Implementing cylinders
+**
+V0.001	-	Implemented the XML reader to use it for mesh creation from the APEX mesh.
 
 
 */
