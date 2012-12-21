@@ -382,8 +382,8 @@ public:
 		mPlane.normal = physx::PxVec3(0.f,1.f,0.f);
 		mPlane.distance = 0.f;
 		physx::PxU32 convMask = 1;//Convex references to the first plane only
-		//mCloth->addCollisionPlane( mPlane );
-		//mCloth->addCollisionConvex( convMask );
+		mCloth->addCollisionPlane( mPlane );
+		mCloth->addCollisionConvex( convMask );
 		mCloth->userData = this;
 		mCloth->setClothFlag( physx::PxClothFlag::eSWEPT_CONTACT, true);
 		mCloth = mPhysX->createCloth( pose, *mFabric, mPoints, cd, physx::PxClothFlag::eSWEPT_CONTACT);

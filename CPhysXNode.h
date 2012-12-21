@@ -2,7 +2,7 @@
 #include <irrlicht.h>
 #include <PxPhysicsAPI.h>
 #include "MutexPhysX.h"
-
+using namespace irr;
 
 class CPhysXNode
 {
@@ -10,17 +10,19 @@ private:
 	//------------------PHYSX STUFF-----------
 	physx::PxRigidDynamic*	pxActor;
 	physx::PxTransform		pose;
+	physx::PxMat44			pxRot;
 	//------------------IRRLICHT STUFF--------
 	irr::scene::ISceneNode* irrActor;
 	irr::core::vector3df	pos;
-	irr::core::quaternion	rot;
+	irr::core::quaternion	quat;
+	irr::core::matrix4		rot;
 	CMutex* mutex;
 public:
 	//Constructor
-	CPhysXNode( physx::PxRigidDynamic* physicsActor, irr::scene::ISceneNode* irrlichtActor )
+	CPhysXNode( physx::PxRigidDynamic& physicsActor, irr::scene::ISceneNode& irrlichtActor )
 	{
-		pxActor = physicsActor;
-		irrActor = irrlichtActor;
+		pxActor = &physicsActor;
+		irrActor = &irrlichtActor;
 	}
 	//Destructor
 	~CPhysXNode(){}
@@ -35,14 +37,30 @@ public:
 		pos.Y = pose.p.y;
 		pos.Z = pose.p.z;
 		irrActor->setPosition(pos);
-		rot.X = pose.q.x;
-		rot.Y = pose.q.y;
-		rot.Z = pose.q.z;
-		rot.W = pose.q.w;
-		irrActor->setRotation(mutex->GetRotationFromPhysX(pose.q) );
+		quat.X = pose.q.x;
+		quat.Y = pose.q.y;
+		quat.Z = pose.q.z;
+		quat.W = pose.q.w;
+		rot = quat.getMatrix();
+		irrActor->setRotation( rot.getRotationDegrees().invert() );
+		
 	}
 	irr::scene::ISceneNode* getIrrNode() const { return irrActor; }
 	physx::PxRigidDynamic* getPhysXActor() const { return pxActor; }
+};
+
+class CCustomNode : public irr::scene::ISceneNode
+{
+private:
+	irr::core::aabbox3d<f32> box;
+	video::S3DVertex Vertices[4];
+	video::SMaterial material;
+public:
+	CCustomNode( scene::ISceneNode* parent, scene::ISceneManager* smgr, s32 id)
+		: scene::ISceneNode( parent,smgr,id)
+	{
+
+	}
 };
 
 class CPhysXCloth

@@ -28,7 +28,7 @@ physx::PxFoundation* initPhysX()
 
 //jaworekplay
 //I thought it would be easier to use constant value to define number of actors in the scene
-const unsigned __int16 MAX = 100; 
+const unsigned __int16 MAX = 10;
 
 int main()
 {
@@ -73,20 +73,20 @@ int main()
 	//jaworekplay
 	//it's cloth time !!!!
 
-	irr::scene::IMesh* clothMesh = smgr->getGeometryCreator()->createPlaneMesh(
+	/*irr::scene::IMesh* clothMesh = smgr->getGeometryCreator()->createPlaneMesh(
 		irr::core::dimension2d<irr::f32>(10,10), 
 		irr::core::dimension2d<irr::u32>(10,10), 
 		&smgr->getVideoDriver()->getMaterial2D(), 
 		irr::core::dimension2d<irr::f32>(10,10) );
-	irr::scene::ISceneNode* cloth = smgr->addMeshSceneNode( clothMesh,0,-1, irr::core::vector3df(0.f,20.f,0.f) );
-	mute->CreateCloth();
+	irr::scene::ISceneNode* cloth = smgr->addMeshSceneNode( clothMesh,0,-1, irr::core::vector3df(0.f,20.f,0.f) );*/
+	//mute->CreateCloth();
 	//------------------ALPHA !!!
 	
 	PxVec3 pos(PxVec3(0.f,0.f,0.f));
 	CPhysXNode* physicsActor[MAX];
 	for( int i = 0; i < MAX; i++ )
 	{
-		physicsActor[i] = new CPhysXNode( mute->CreateActor(pos) , smgr->addSphereSceneNode(2.f) ); // Physics Actor instance: PhysX actor, irrlicht Sphere Scene Node
+		physicsActor[i] = new CPhysXNode( *mute->CreateActor(pos) , *smgr->addSphereSceneNode(2.f) ); // Physics Actor instance: PhysX actor, irrlicht Sphere Scene Node
 		pos.x = rand() % 100;
 		pos.z = rand() % 100;
 		
