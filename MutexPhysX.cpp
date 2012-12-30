@@ -2,13 +2,15 @@
 #include "CPhysXNode.h"												//				This box is for the informations between developers ;)
 #include "ICustomEventReceiver.h"									//---Check the MutexPhysX.h for new method createCloth (mute->CreateCloth())
 #include <driverChoice.h>											//
-#include "libraries.h"												//
+#include "libraries.h"												//please check documentation.h
 #include <Windows.h>												//
 #include <iostream>													//
 #include <driverChoice.h>											//
 #include <time.h>													//
 #include "documentation.h"											//
-																	///////////////////////////////////////////////////////
+#include "defines.h"												///////////////////////////////////////////////////////
+
+
 physx::PxFoundation* initPhysX()
 {
 	static physx::PxDefaultErrorCallback gDefaultErrorCallback;
@@ -28,7 +30,7 @@ physx::PxFoundation* initPhysX()
 
 //jaworekplay
 //I thought it would be easier to use constant value to define number of actors in the scene
-const unsigned __int16 MAX = 10;
+const unsigned __int16 MAX = 100; 
 
 int main()
 {
@@ -52,12 +54,12 @@ int main()
 	irr::video::E_DRIVER_TYPE driverType = irr::driverChoiceConsole();
 	if( driverType == irr::video::EDT_COUNT )
 		return 1;
-	irr::IrrlichtDevice* device = irr::createDevice( driverType, size, 16,false,false,false,rec);
+	irr::IrrlichtDevice* device = irr::createDevice( driverType, size, 32,false,false,false,rec);
 
 	irr::scene::ISceneManager* smgr = device->getSceneManager();
     irr::video::IVideoDriver* driver = device->getVideoDriver();
 
-	//---------------------------------------------plane
+	//plane
 	irr::scene::IMesh* groundPlane = smgr->getGeometryCreator()->createPlaneMesh( 
 		irr::core::dimension2d<irr::f32>(10,10), 
 		irr::core::dimension2d<irr::u32>(10,10), 
@@ -70,25 +72,23 @@ int main()
 	Plane->setMaterialTexture(0,driver->getTexture("media/rockwall.jpg") );
 	Plane->setMaterialFlag(irr::video::EMF_LIGHTING, true );
 	Plane->setDebugDataVisible( irr::scene::EDS_FULL );
-	//////////////////////////////////////////////////////
-	//--------------------------------------------XML-----
 	//jaworekplay
 	//it's cloth time !!!!
 
-	/*irr::scene::IMesh* clothMesh = smgr->getGeometryCreator()->createPlaneMesh(
-		irr::core::dimension2d<irr::f32>(10,10), 
-		irr::core::dimension2d<irr::u32>(10,10), 
-		&smgr->getVideoDriver()->getMaterial2D(), 
-		irr::core::dimension2d<irr::f32>(10,10) );
-	irr::scene::ISceneNode* cloth = smgr->addMeshSceneNode( clothMesh,0,-1, irr::core::vector3df(0.f,20.f,0.f) );*/
-	//mute->CreateCloth();
+	irr::scene::IMesh* clothMesh = smgr->getGeometryCreator()->createPlaneMesh(	irr::core::dimension2d<irr::f32>(10,10), 
+																				irr::core::dimension2d<irr::u32>(10,10), 
+																				&smgr->getVideoDriver()->getMaterial2D(), 
+																				irr::core::dimension2d<irr::f32>(10,10) );
+	irr::scene::ISceneNode* cloth = smgr->addMeshSceneNode( clothMesh,0,-1, 
+															irr::core::vector3df(0.f,20.f,0.f) );
+	mute->CreateCloth();
 	//------------------ALPHA !!!
 	
 	PxVec3 pos(PxVec3(0.f,0.f,0.f));
 	CPhysXNode* physicsActor[MAX];
 	for( int i = 0; i < MAX; i++ )
 	{
-		physicsActor[i] = new CPhysXNode( *mute->CreateActor(pos) , *smgr->addSphereSceneNode(2.f) ); // Physics Actor instance: PhysX actor, irrlicht Sphere Scene Node
+		physicsActor[i] = new CPhysXNode( mute->CreateActor(pos) , smgr->addSphereSceneNode() ); // Physics Actor instance: PhysX actor, irrlicht Sphere Scene Node
 		pos.x = rand() % 100;
 		pos.z = rand() % 100;
 		
@@ -98,7 +98,13 @@ int main()
 	{
 		node[i] = physicsActor[i]->getIrrNode();
 		//node[i]->setDebugDataVisible(-1);
-		node[i]->setMaterialTexture(0, driver->getTexture("D:/media/wall.bmp") );
+		#ifdef _Lukasz_debug
+				node[i]->setMaterialTexture(0, driver->getTexture("D:/media/wall.bmp") );
+		#endif
+		#ifdef _Leo_debug
+				node[i]->setMaterialTexture(0, driver->getTexture("K:/Irrlicht/Source/irrlicht-1.7.3/media/wall.bmp") );
+		#endif
+
 		node[i]->setMaterialFlag(irr::video::EMF_LIGHTING, false );
 	}
 	
@@ -108,21 +114,21 @@ int main()
 	}*/
 
 
-	//----------------------------------------camera
+	//camera
 	irr::scene::ICameraSceneNode* cam;
 	cam = smgr->addCameraSceneNodeFPS();
 	cam->setPosition( irr::core::vector3df( 0.f, 70.f, -50.f ) );
+	cam->setNearValue( 0.5f );
 	cam->setFarValue( 10000.f );
-	////////////////////////////////////////////////
+	
 	device->getCursorControl()->setVisible( false );
 	int lastFPS = -1;
-	//------------------------------------------timer
+	//timer
 	irr::ITimer* irrTimer;
 	irrTimer = device->getTimer();
 	irr::u32 timeStamp = irrTimer->getTime(), deltaTime = 0;
 	irr::gui::IGUIStaticText* text = device->getGUIEnvironment()->addStaticText( L"Jaworekplay Left movement is eFORCE Right movement is eVELOCITY_CHANG nJump is eIMPULSE", irr::core::rect<irr::s32>( 10, 10, 400, 80 ),true );
-	/////////////////////////////////////////////////
-
+	
 	while( device->run() )
 	{
 		mute->getResults();
@@ -141,6 +147,7 @@ int main()
 			// do the character controller ASAP
 			// return value of the scene and create PhysX actor outside the class
 			//fix rotation !
+
 		}
 		if( rec->isKeyPressed( irr::KEY_ESCAPE ) )
 		{
@@ -148,6 +155,7 @@ int main()
 			device->drop();
 			return 0;
 		}
+		
 		irr::s32 fps = driver->getFPS();
 		if( lastFPS != fps )
 		{

@@ -2,7 +2,7 @@
 //#include "ICustomEventReceiver.h"
 #include "CEventRec.h"
 #include <PxPhysicsAPI.h>
-#include <PxToolkit.h>
+#include "PxToolkit.h"
 
 #include <malloc.h>
 #include <stdio.h>
@@ -382,11 +382,14 @@ public:
 		mPlane.normal = physx::PxVec3(0.f,1.f,0.f);
 		mPlane.distance = 0.f;
 		physx::PxU32 convMask = 1;//Convex references to the first plane only
+#ifdef ENABLE_CLOTH
 		mCloth->addCollisionPlane( mPlane );
 		mCloth->addCollisionConvex( convMask );
 		mCloth->userData = this;
 		mCloth->setClothFlag( physx::PxClothFlag::eSWEPT_CONTACT, true);
-		mCloth = mPhysX->createCloth( pose, *mFabric, mPoints, cd, physx::PxClothFlag::eSWEPT_CONTACT);
+		mCloth = mPhysX->createCloth( pose, *mFabric, mPoints, cd, physx::PxClothFlag::eSWEPT_CONTACT);  
+#endif // ENABLE_CLOTH
+
 		mCps.solverType = physx::PxClothPhaseSolverConfig::eFAST;
 		mCps.stiffness = 1;
 		mCps.stretchStiffness = 0.5f;
