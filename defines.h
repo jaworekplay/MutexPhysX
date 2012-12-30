@@ -4,4 +4,4 @@
 //#define _Craig_debug
 //#define _Michael_debug
 
-#define ENABLE_CLOTH // Leo - I have put this here so I can disable cloth for myself as it isn't working
+#define DEBUG_CLOTH // Leo - I have put this here so I can disable cloth for myself as it isn't working
