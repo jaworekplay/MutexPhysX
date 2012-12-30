@@ -25,10 +25,12 @@ V0.001	 - 	*Corrected the irrlicht Sphere node to match the physical size of the
 *****************************************************************************			
 
 jaworekplay UPDATE 15/11/2012
-**Added some comments to the code
-**Implementing cylinders
+**Added some comments to the code																																//Lukasz
+**Implementing cylinders																																		//Lukasz
 **
-V0.001	-	Implemented the XML reader to use it for mesh creation from the APEX mesh.
+V0.001	-	Implemented the XML reader to use it for mesh creation from the APEX mesh.																			//Lukasz
+- Attempt to create a convex shape in the physx - It won't be visible in the Irrlicht but it will in the PVD.													//Lukasz
+- Our application needs to be rearranged to allow us to use the XML reader, I will do this only if you guys are OK with it. More info on the GitHub.			//Lukasz
 
 
 */

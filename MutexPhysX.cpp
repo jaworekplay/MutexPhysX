@@ -57,7 +57,7 @@ int main()
 	irr::scene::ISceneManager* smgr = device->getSceneManager();
     irr::video::IVideoDriver* driver = device->getVideoDriver();
 
-	//plane
+	//---------------------------------------------plane
 	irr::scene::IMesh* groundPlane = smgr->getGeometryCreator()->createPlaneMesh( 
 		irr::core::dimension2d<irr::f32>(10,10), 
 		irr::core::dimension2d<irr::u32>(10,10), 
@@ -70,6 +70,8 @@ int main()
 	Plane->setMaterialTexture(0,driver->getTexture("media/rockwall.jpg") );
 	Plane->setMaterialFlag(irr::video::EMF_LIGHTING, true );
 	Plane->setDebugDataVisible( irr::scene::EDS_FULL );
+	//////////////////////////////////////////////////////
+	//--------------------------------------------XML-----
 	//jaworekplay
 	//it's cloth time !!!!
 
@@ -106,20 +108,21 @@ int main()
 	}*/
 
 
-	//camera
+	//----------------------------------------camera
 	irr::scene::ICameraSceneNode* cam;
 	cam = smgr->addCameraSceneNodeFPS();
 	cam->setPosition( irr::core::vector3df( 0.f, 70.f, -50.f ) );
 	cam->setFarValue( 10000.f );
-
+	////////////////////////////////////////////////
 	device->getCursorControl()->setVisible( false );
 	int lastFPS = -1;
-	//timer
+	//------------------------------------------timer
 	irr::ITimer* irrTimer;
 	irrTimer = device->getTimer();
 	irr::u32 timeStamp = irrTimer->getTime(), deltaTime = 0;
 	irr::gui::IGUIStaticText* text = device->getGUIEnvironment()->addStaticText( L"Jaworekplay Left movement is eFORCE Right movement is eVELOCITY_CHANG nJump is eIMPULSE", irr::core::rect<irr::s32>( 10, 10, 400, 80 ),true );
-	
+	/////////////////////////////////////////////////
+
 	while( device->run() )
 	{
 		mute->getResults();

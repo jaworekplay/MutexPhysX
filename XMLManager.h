@@ -43,19 +43,23 @@ public:
 	}
 	virtual bool load()
 	{
+		//chaeck if the device is OK
 		if( !device )
 			return false;
 
+		//create reader!
 		irr::io::IXMLReader* xml = device->getFileSystem()->createXMLReader( settingFile );
 		
+		//if failed save work and don't progress
 		if( !xml )
 			return false;
 
-		const core::stringw settingTag(L"setting"); //tag responsible for settings in the xml file
+		const core::stringw settingTag(L"value"); //this tag is responsible for holding values of the destroyed on=bject verticies
 		
+		//current section in the doc
 		stringw currentSection;
-
-		const stringw videoTag(L"Video");
+		//constant used for array
+		const stringw videoTag(L"array");
 
 		while( xml->read() )
 		{
