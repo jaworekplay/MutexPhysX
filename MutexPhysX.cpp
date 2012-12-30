@@ -58,9 +58,7 @@ int main()
 
 	irr::scene::ISceneManager* smgr = device->getSceneManager();
     irr::video::IVideoDriver* driver = device->getVideoDriver();
-#ifdef _Leo_debug
-	irr::scene::IMesh* irrMesh = smgr->getGeometryCreator()->createSphereMesh();
-#endif
+
 	//plane
 	irr::scene::IMesh* groundPlane = smgr->getGeometryCreator()->createPlaneMesh( 
 		irr::core::dimension2d<irr::f32>(10,10), 
@@ -76,23 +74,21 @@ int main()
 	Plane->setDebugDataVisible( irr::scene::EDS_FULL );
 	//jaworekplay
 	//it's cloth time !!!!
-#ifdef DEBUG_CLOTH
+
 	irr::scene::IMesh* clothMesh = smgr->getGeometryCreator()->createPlaneMesh(	irr::core::dimension2d<irr::f32>(10,10), 
 																				irr::core::dimension2d<irr::u32>(10,10), 
 																				&smgr->getVideoDriver()->getMaterial2D(), 
 																				irr::core::dimension2d<irr::f32>(10,10) );
 	irr::scene::ISceneNode* cloth = smgr->addMeshSceneNode( clothMesh,0,-1, 
 															irr::core::vector3df(0.f,20.f,0.f) );
-	//mute->CreateCloth();
-#endif
+	mute->CreateCloth();
 	//------------------ALPHA !!!
-	// Working on using Mesh Scene Nodes so that we can use any mesh. I will investigate using BSP as the PhysX actor (instead of a Sphere) - Leo
 	
 	PxVec3 pos(PxVec3(0.f,0.f,0.f));
 	CPhysXNode* physicsActor[MAX];
 	for( int i = 0; i < MAX; i++ )
 	{
-		physicsActor[i] = new CPhysXNode( mute->CreateActor(pos) , smgr->addMeshSceneNode(irrMesh)); // Physics Actor instance: PhysX actor, irrlicht Sphere Scene Node
+		physicsActor[i] = new CPhysXNode( mute->CreateActor(pos) , smgr->addSphereSceneNode() ); // Physics Actor instance: PhysX actor, irrlicht Sphere Scene Node
 		pos.x = rand() % 100;
 		pos.z = rand() % 100;
 		

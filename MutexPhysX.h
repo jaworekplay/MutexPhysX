@@ -2,7 +2,7 @@
 //#include "ICustomEventReceiver.h"
 #include "CEventRec.h"
 #include <PxPhysicsAPI.h>
-#include <PxToolkit.h>
+#include "PxToolkit.h"
 
 #include <malloc.h>
 #include <stdio.h>
@@ -18,7 +18,6 @@
 #include <irrlicht.h>
 
 using namespace physx;
-using namespace irr;
 
 class CMutex
 {
@@ -188,8 +187,8 @@ public:
 	//This function will create an actor
 	//either static or rigid: kinematic or ragdoll
 	//TO DO
-	virtual physx::PxRigidDynamic* CreateActor( physx::PxVec3& position = PxVec3(0.f,0.f,0.f),
-												physx::PxReal sphereRadius = physx::PxReal(1.f), 
+	virtual physx::PxRigidDynamic* CreateActor( physx::PxVec3& position = PxVec3(0.f,100.f,0.f),
+												physx::PxReal sphereRadius = physx::PxReal(2.f), 
 												physx::PxVec3& velocity = physx::PxVec3(0.f, 0.f,0.f) )
 	{
 		mPhysX->getMaterials( &mMaterial, 1 );
@@ -271,7 +270,7 @@ public:
 													actor1, actor2->getGlobalPose(), 
 													actor2, actor2->getGlobalPose());
 	} 
-#ifdef ENABLE_CLOTH
+
 	//Description
 	//This function should be able to create cloth in PhysX engine not in the Irrlicht one!!!
 	virtual physx::PxCloth* CreateCloth()
@@ -383,13 +382,13 @@ public:
 		mPlane.normal = physx::PxVec3(0.f,1.f,0.f);
 		mPlane.distance = 0.f;
 		physx::PxU32 convMask = 1;//Convex references to the first plane only
-
+#ifdef ENABLE_CLOTH
 		mCloth->addCollisionPlane( mPlane );
 		mCloth->addCollisionConvex( convMask );
 		mCloth->userData = this;
 		mCloth->setClothFlag( physx::PxClothFlag::eSWEPT_CONTACT, true);
 		mCloth = mPhysX->createCloth( pose, *mFabric, mPoints, cd, physx::PxClothFlag::eSWEPT_CONTACT);  
-
+#endif // ENABLE_CLOTH
 
 		mCps.solverType = physx::PxClothPhaseSolverConfig::eFAST;
 		mCps.stiffness = 1;
@@ -403,7 +402,6 @@ public:
 		mScene->addActor( *mCloth );
 		return mCloth;
 	}
-#endif 
 
 	//Description
 	//This method will create connection between PhysX application

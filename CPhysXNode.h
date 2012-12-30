@@ -19,10 +19,10 @@ private:
 	CMutex* mutex;
 public:
 	//Constructor
-	CPhysXNode( physx::PxRigidDynamic* physicsActor, irr::scene::IMeshSceneNode* irrlichtActor )
+	CPhysXNode( physx::PxRigidDynamic& physicsActor, irr::scene::ISceneNode& irrlichtActor )
 	{
-		pxActor = physicsActor;
-		irrActor = irrlichtActor;
+		pxActor = &physicsActor;
+		irrActor = &irrlichtActor;
 	}
 	//Destructor
 	~CPhysXNode(){}
@@ -69,13 +69,12 @@ class CPhysXCloth
         //include them in the main class and return actor or node- preferrably node to aneble irrlicht rendering
         //can't wait to see that working
         //one issue I have, how on earth are we going to translate the cloth PhysX object to a renderable in Irrlicht object ?
-	// Leo - Perhaps we can create an array that will store vertex positions, then use a link list to update the irrlicht geometry (ask in person tbh, hard to explain it all here)
         //Create cloth
-     /* PxClothMeshDesc meshDesc;
+      /*PxClothMeshDesc meshDesc;
 	meshDesc.setToDefault();
 	
 	//Fill the geometry
-	int w = 8, h = 7;
+	int w = 8, h=7;
 	float hw = w / 2.0f;
 	float hh = h / 2.0f;
 	d = 0.2f;

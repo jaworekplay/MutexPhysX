@@ -53,8 +53,5 @@
     <ClInclude Include="defines.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="K:\Irrlicht\Source\PhysX\Samples\PxToolkit\include\PxToolkit.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>
