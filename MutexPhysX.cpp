@@ -8,6 +8,7 @@
 #include <driverChoice.h>											//
 #include <time.h>													//
 #include "documentation.h"											//
+#include "audio.h"													//
 																	///////////////////////////////////////////////////////
 physx::PxFoundation* initPhysX()
 {
@@ -48,6 +49,7 @@ int main()
 		std::cout << ";/";
 	////////////////////////////////////////////////////////////
 
+	//---------------------------INITIALISATION OF IRRLICHT----------------------------
 	irr::core::dimension2d<irr::u32> size = irr::core::dimension2d<irr::u32>(1024,768);
 	irr::video::E_DRIVER_TYPE driverType = irr::driverChoiceConsole();
 	if( driverType == irr::video::EDT_COUNT )
@@ -56,6 +58,10 @@ int main()
 
 	irr::scene::ISceneManager* smgr = device->getSceneManager();
     irr::video::IVideoDriver* driver = device->getVideoDriver();
+	///////////////////////////////////////////////////////////////////////////////////
+	//--------------------------AUDIO-------------------
+	AudioEngine audio(true);//-----------------------------------this is used instead of AudioEngine audio = new AudioEngine( bool "true" or "false" );, reason why used saves time in writing too much code
+	////////////////////////////////////////////////////
 
 	//---------------------------------------------plane
 	irr::scene::IMesh* groundPlane = smgr->getGeometryCreator()->createPlaneMesh( 

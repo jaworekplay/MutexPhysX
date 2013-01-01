@@ -89,6 +89,7 @@
     <ClCompile Include="MutexPhysX.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="audio.h" />
     <ClInclude Include="CPhysXNode.h" />
     <ClInclude Include="documentation.h" />
     <ClInclude Include="EPhysXCharacterCollisionGroup.h" />
