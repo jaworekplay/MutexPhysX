@@ -1,6 +1,7 @@
 #pragma once
 //#include "ICustomEventReceiver.h"
 #include "CEventRec.h"
+#include "MeshImportTypes.h"
 #include <PxPhysicsAPI.h>
 #include <PxToolkit.h>
 
@@ -18,6 +19,7 @@
 #include <irrlicht.h>
 
 using namespace physx;
+using namespace mimp;
 
 class CMutex
 {
@@ -180,7 +182,6 @@ public:
 		mAccumulator -= mStepSize;
 		mScene->simulate( mStepSize );
 		mScene->fetchResults(true);
-		//mJoint->setConstraintFlag(physx::PxConstraintFlag::eCOLLISION_ENABLED,true);
 		return true;
 	}
 	//Description
@@ -211,48 +212,55 @@ public:
 
 	//Description
 	//This function should translate rotations from the PhysX quartternion and matrix to irrlicht vector one
-	irr::core::vector3df GetRotationFromPhysX( physx::PxQuat q )
-		{
-			const float Epsilon = 0.0009765625f;
-			const float Threshold = 0.5f - Epsilon;
- 
-			float yaw;
-			float pitch;
-			float roll;
- 
-			float XY = q.x * q.y;
-			float ZW = q.z * q.w;
- 
-			float TEST = XY + ZW;
- 
-			if (TEST < -Threshold || TEST > Threshold) 
-			{
-				int sign = TEST>0?1:-1;
-				yaw = sign * 2 * (float)atan2(q.x, q.w);
-				pitch = sign * 3.14159 / 2.0f;
-				roll = 0;
-			} else 
-			{
-				float XX = q.x * q.x;
-				float XZ = q.x * q.z;
-				float XW = q.x * q.w;
- 
-				float YY = q.y * q.y;
-				float YW = q.y * q.w;
-				float YZ = q.y * q.z;
- 
-				float ZZ = q.z * q.z;
- 
-				yaw = (float)atan2(2 * YW - 2 * XZ, 1 - 2 * YY - 2 * ZZ);
-				pitch = (float)atan2(2 * XW - 2 * YZ, 1 - 2 * XX - 2 * ZZ);
-				roll = (float)asin(2 * TEST);
-			}
- 
-			return irr::core::vector3df(pitch* 180.0f / 3.1415f, 
-				yaw* 180.0f / 3.1415f, 
-				roll* 180.0f / 3.1415f) + 
-				irr::core::vector3df(360, 360, 360);
-		}
+	virtual void fmi_matrixToQuat(const MiF32 *matrix,MiF32 *quat) // convert the 3x3 portion of a 4x4 matrix into a quaterion as x,y,z,w
+	{
+
+	  MiF32 tr = matrix[0*4+0] + matrix[1*4+1] + matrix[2*4+2];
+
+	  // check the diagonal
+
+	  if (tr > 0.0f )
+	  {
+		MiF32 s = sqrtf((tr + 1.0f) );
+		quat[3] = s * 0.5f;
+		s = 0.5f / s;
+		quat[0] = (matrix[1*4+2] - matrix[2*4+1]) * s;
+		quat[1] = (matrix[2*4+0] - matrix[0*4+2]) * s;
+		quat[2] = (matrix[0*4+1] - matrix[1*4+0]) * s;
+
+	  }
+	  else
+	  {
+		// diagonal is negative
+		MiI32 nxt[3] = {1, 2, 0};
+		MiF32  qa[4];
+
+		MiI32 i = 0;
+
+		if (matrix[1*4+1] > matrix[0*4+0]) i = 1;
+		if (matrix[2*4+2] > matrix[i*4+i]) i = 2;
+
+		MiI32 j = nxt[i];
+		MiI32 k = nxt[j];
+
+		MiF32 s = sqrtf( ((matrix[i*4+i] - (matrix[j*4+j] + matrix[k*4+k])) + 1.0f) );
+
+		qa[i] = s * 0.5f;
+
+		if (s != 0.0f ) s = 0.5f / s;
+
+		qa[3] = (matrix[j*4+k] - matrix[k*4+j]) * s;
+		qa[j] = (matrix[i*4+j] + matrix[j*4+i]) * s;
+		qa[k] = (matrix[i*4+k] + matrix[k*4+i]) * s;
+
+		quat[0] = qa[0];
+		quat[1] = qa[1];
+		quat[2] = qa[2];
+		quat[3] = qa[3];
+	  }
+
+
+	}
 
 	void getResults(){mScene->fetchResults(true);};
 

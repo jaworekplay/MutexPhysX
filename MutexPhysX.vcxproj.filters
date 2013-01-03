@@ -21,6 +21,9 @@
     <ClCompile Include="ICustomEventReceiver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="D:\Irrlicht\APEXSDK-1.2.1-Build22-CL13879708-PhysX_3.2.1-WIN-VC10-BIN\shared\general\meshimport\include\MeshImport\MeshImport.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MutexPhysX.h">
@@ -51,6 +54,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="audio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Irrlicht\APEXSDK-1.2.1-Build22-CL13879708-PhysX_3.2.1-WIN-VC10-BIN\shared\general\meshimport\include\MeshImport\MeshImportTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Irrlicht\APEXSDK-1.2.1-Build22-CL13879708-PhysX_3.2.1-WIN-VC10-BIN\shared\general\meshimport\include\MeshImport\MeshImport.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

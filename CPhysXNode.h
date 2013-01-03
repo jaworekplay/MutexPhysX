@@ -41,6 +41,8 @@ public:
 		quat.Y = pose.q.y;
 		quat.Z = pose.q.z;
 		quat.W = pose.q.w;
+		//quat.normalize();
+		quat.makeIdentity();
 		rot = quat.getMatrix();
 		irrActor->setRotation( rot.getRotationDegrees().invert() );
 		
@@ -53,13 +55,19 @@ class CCustomNode : public irr::scene::ISceneNode
 {
 private:
 	irr::core::aabbox3d<f32> box;
-	video::S3DVertex Vertices[4];
+	int numberOfVerticies;
+	video::S3DVertex* Vertices;
 	video::SMaterial material;
 public:
-	CCustomNode( scene::ISceneNode* parent, scene::ISceneManager* smgr, s32 id)
-		: scene::ISceneNode( parent,smgr,id)
+	CCustomNode( int numOfVertices, scene::ISceneNode* parent, scene::ISceneManager* smgr, s32 id)
+		: scene::ISceneNode( parent,smgr,id), numberOfVerticies(numOfVertices)
 	{
+		material.Wireframe = false;
+		material.Lighting  = false;
 
+		for( int i = 0; i < numberOfVerticies; ++i)
+		{
+		}
 	}
 };
 
