@@ -18,6 +18,8 @@
 
 #include <irrlicht.h>
 
+#include <NxApex.h>
+
 using namespace physx;
 using namespace mimp;
 
@@ -26,6 +28,7 @@ class CMutex
 protected:
 	//PxFoundation is declared outside because whilst inside creation assertion error 
 	//occurs
+	physx::PxFoundation*			mFoundation;
 	//------------------------------top-level PhysX
 	bool recordMemoryAllocations;
 	physx::PxProfileZoneManager*	mProfileZoneManager;
@@ -89,12 +92,11 @@ public:
 	//Description
 	//Constructor
 	//No.1 for the initial setup very important do not ommit !
-	CMutex(physx::PxFoundation* mFoundation, 
+	CMutex(physx::PxFoundation* Foundation, 
 		physx::PxSimulationFilterShader filter = NULL,
-		physx::pxtask::CudaContextManager* mCudaContextManager = NULL)
+		physx::pxtask::CudaContextManager* mCudaContextManager = NULL):mFoundation(Foundation)
 	{
 		//creating base PxFoundation essential for top-level PhysX
-		
 		if( !mFoundation )
 			printf("Foundation creation failed!\n");
 		else
@@ -483,6 +485,8 @@ public:
 	return false;
 	}
 
+	virtual physx::PxFoundation* FoundationCallback(){return mFoundation;}
+
 	//Destructor
 	~CMutex()
 	{
@@ -502,4 +506,30 @@ public:
 			_aligned_free(ptr);
 		}
 	};*/
+};
+class APEX : protected CMutex
+{
+private:
+	//descriptor for APEX SDK
+	NxApexSDKDesc apexDesc;
+	physx::apex::NxApexSDK* mAPEX;
+	physx::PxErrorCallback* pxError;
+	CMutex* mutex;
+public:
+	APEX()
+	{
+		pxError = mutex->FoundationCallback()->getErrorCallback();
+		apexDesc.physXSDK = CMutex::mPhysX;
+		apexDesc.cooking = CMutex::mCooking;
+		apexDesc.outputStream = pxError;
+		apexDesc.renderResourceManager = NULL;//todo ?
+		//apex custom named resource handler
+		apexDesc.resourceCallback = NULL;
+		//materials used by APEX
+		apexDesc.wireframeMaterial = 0; //leave it to default values
+		apexDesc.solidShadedMaterial = 0;//leave to defaults initialised by string with location
+		mAPEX = NxCreateApexSDK( apexDesc );
+		PX_ASSERT(mAPEX);
+	}
+	//APEX needs a memory allocator and error stream. By default it uses the PhysX one
 };
