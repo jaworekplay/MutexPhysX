@@ -85,15 +85,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="D:\Irrlicht\APEXSDK-1.2.1-Build22-CL13879708-PhysX_3.2.1-WIN-VC10-BIN\shared\general\meshimport\include\MeshImport\MeshImport.cpp" />
     <ClCompile Include="ICustomEventReceiver.cpp" />
     <ClCompile Include="MutexPhysX.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="audio.h" />
     <ClInclude Include="CPhysXNode.h" />
-    <ClInclude Include="D:\Irrlicht\APEXSDK-1.2.1-Build22-CL13879708-PhysX_3.2.1-WIN-VC10-BIN\shared\general\meshimport\include\MeshImport\MeshImport.h" />
-    <ClInclude Include="D:\Irrlicht\APEXSDK-1.2.1-Build22-CL13879708-PhysX_3.2.1-WIN-VC10-BIN\shared\general\meshimport\include\MeshImport\MeshImportTypes.h" />
     <ClInclude Include="documentation.h" />
     <ClInclude Include="EPhysXCharacterCollisionGroup.h" />
     <ClInclude Include="ICustomEventReceiver.h" />

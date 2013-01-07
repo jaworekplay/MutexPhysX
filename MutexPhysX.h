@@ -1,5 +1,5 @@
 #pragma once
-//#include "ICustomEventReceiver.h"
+//to use destruction with APEX you need to define DESTRUCTION variable
 #include "CEventRec.h"
 #include "MeshImportTypes.h"
 #include <PxPhysicsAPI.h>
@@ -17,8 +17,9 @@
 #include <vector>
 
 #include <irrlicht.h>
-
+#ifdef DESTRUCTION
 #include <NxApex.h>
+#endif
 
 using namespace physx;
 using namespace mimp;
@@ -214,54 +215,21 @@ public:
 
 	//Description
 	//This function should translate rotations from the PhysX quartternion and matrix to irrlicht vector one
-	virtual void fmi_matrixToQuat(const MiF32 *matrix,MiF32 *quat) // convert the 3x3 portion of a 4x4 matrix into a quaterion as x,y,z,w
+	virtual void Rotate() //
 	{
-
-	  MiF32 tr = matrix[0*4+0] + matrix[1*4+1] + matrix[2*4+2];
-
-	  // check the diagonal
-
-	  if (tr > 0.0f )
-	  {
-		MiF32 s = sqrtf((tr + 1.0f) );
-		quat[3] = s * 0.5f;
-		s = 0.5f / s;
-		quat[0] = (matrix[1*4+2] - matrix[2*4+1]) * s;
-		quat[1] = (matrix[2*4+0] - matrix[0*4+2]) * s;
-		quat[2] = (matrix[0*4+1] - matrix[1*4+0]) * s;
-
-	  }
-	  else
-	  {
-		// diagonal is negative
-		MiI32 nxt[3] = {1, 2, 0};
-		MiF32  qa[4];
-
-		MiI32 i = 0;
-
-		if (matrix[1*4+1] > matrix[0*4+0]) i = 1;
-		if (matrix[2*4+2] > matrix[i*4+i]) i = 2;
-
-		MiI32 j = nxt[i];
-		MiI32 k = nxt[j];
-
-		MiF32 s = sqrtf( ((matrix[i*4+i] - (matrix[j*4+j] + matrix[k*4+k])) + 1.0f) );
-
-		qa[i] = s * 0.5f;
-
-		if (s != 0.0f ) s = 0.5f / s;
-
-		qa[3] = (matrix[j*4+k] - matrix[k*4+j]) * s;
-		qa[j] = (matrix[i*4+j] + matrix[j*4+i]) * s;
-		qa[k] = (matrix[i*4+k] + matrix[k*4+i]) * s;
-
-		quat[0] = qa[0];
-		quat[1] = qa[1];
-		quat[2] = qa[2];
-		quat[3] = qa[3];
-	  }
-
-
+		PxMat33 mat = PxMat33::PxMat33( mSphereActor->getGlobalPose().q );
+		irr::core::matrix4 irrM;
+		irr::f32 fM[16];
+		fM[0] = mat.column0.x;
+		fM[1] = mat.column0.y;
+		fM[2] = mat.column0.z;
+		fM[4] = mat.column1.x;
+		fM[5] = mat.column1.y;
+		fM[6] = mat.column1.z;
+		fM[8] = mat.column2.x;
+		fM[9] = mat.column2.y;
+		fM[10] = mat.column2.z;
+		irrM.setM( fM );
 	}
 
 	void getResults(){mScene->fetchResults(true);};
@@ -507,18 +475,21 @@ public:
 		}
 	};*/
 };
+#ifdef DESTRUCTION
 class APEX : protected CMutex
 {
 private:
 	//descriptor for APEX SDK
 	NxApexSDKDesc apexDesc;
 	physx::apex::NxApexSDK* mAPEX;
+	physx::apex::NxApexRenderDebug* deb;
+	physx::PxMat44 pose;
 	physx::PxErrorCallback* pxError;
 	CMutex* mutex;
 public:
 	APEX()
 	{
-		pxError = mutex->FoundationCallback()->getErrorCallback();
+		pxError = &mutex->FoundationCallback()->getErrorCallback();
 		apexDesc.physXSDK = CMutex::mPhysX;
 		apexDesc.cooking = CMutex::mCooking;
 		apexDesc.outputStream = pxError;
@@ -530,6 +501,15 @@ public:
 		apexDesc.solidShadedMaterial = 0;//leave to defaults initialised by string with location
 		mAPEX = NxCreateApexSDK( apexDesc );
 		PX_ASSERT(mAPEX);
+		deb = mAPEX->createApexRenderDebug(false,true);
+		pose = physx::PxMat44::createIdentity();
+		if( deb )
+		{
+			deb->beginDrawGroup(pose);
+			deb->drawGrid(false,40);
+			deb->endDrawGroup();
+		}
 	}
 	//APEX needs a memory allocator and error stream. By default it uses the PhysX one
 };
+#endif

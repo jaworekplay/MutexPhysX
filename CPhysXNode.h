@@ -10,12 +10,9 @@ private:
 	//------------------PHYSX STUFF-----------
 	physx::PxRigidDynamic*	pxActor;
 	physx::PxTransform		pose;
-	physx::PxMat44			pxRot;
 	//------------------IRRLICHT STUFF--------
 	irr::scene::ISceneNode* irrActor;
 	irr::core::vector3df	pos;
-	irr::core::quaternion	quat;
-	irr::core::matrix4		rot;
 	CMutex* mutex;
 public:
 	//Constructor
@@ -37,15 +34,21 @@ public:
 		pos.Y = pose.p.y;
 		pos.Z = pose.p.z;
 		irrActor->setPosition(pos);
-		quat.X = pose.q.x;
-		quat.Y = pose.q.y;
-		quat.Z = pose.q.z;
-		quat.W = pose.q.w;
-		//quat.normalize();
-		quat.makeIdentity();
-		rot = quat.getMatrix();
-		irrActor->setRotation( rot.getRotationDegrees().invert() );
-		
+
+		PxMat33 mat = PxMat33::PxMat33( pxActor->getGlobalPose().q ); //this code is from google code thing, because we use Rigid Dynamic already we don't need to static cast ;)
+		irr::core::matrix4 irrM;
+		irr::f32 fM[16];
+		fM[0] = mat.column0.x;
+		fM[1] = mat.column0.y;
+		fM[2] = mat.column0.z;
+		fM[4] = mat.column1.x;
+		fM[5] = mat.column1.y;
+		fM[6] = mat.column1.z;
+		fM[8] = mat.column2.x;
+		fM[9] = mat.column2.y;
+		fM[10] = mat.column2.z;
+		irrM.setM( fM );
+		irrActor->setRotation( irrM.getRotationDegrees() );
 	}
 	irr::scene::ISceneNode* getIrrNode() const { return irrActor; }
 	physx::PxRigidDynamic* getPhysXActor() const { return pxActor; }
