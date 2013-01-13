@@ -62,6 +62,11 @@ int main()
 	//--------------------------AUDIO-------------------
 	AudioEngine audio(true);//-----------------------------------this is used instead of AudioEngine audio = new AudioEngine( bool "true" or "false" );, reason why used saves time in writing too much code
 	////////////////////////////////////////////////////
+	//--------------------------GRENADE-----------------
+	scene::IAnimatedMeshSceneNode* grenade = smgr->addAnimatedMeshSceneNode( smgr->getMesh("frac_grenade.obj"),0,-1,core::vector3df(0,20,0) );
+	if( grenade )
+		printf("Grenade deployed!\n");
+	////////////////////////////////////////////////////
 
 	//---------------------------------------------plane
 	irr::scene::IMesh* groundPlane = smgr->getGeometryCreator()->createPlaneMesh( 
