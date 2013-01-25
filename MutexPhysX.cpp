@@ -42,12 +42,6 @@ int main()
 	if( mute->StartPvdNetwork() )
 		std::cout << "woo hoo\n";
 	////////////////////////////////////////////////////////////
-	//----------------------------Convex shape------------------
-	if( mute->CreatePyramid() )
-		printf(" woop woop!\n");
-	else
-		std::cout << ";/";
-	////////////////////////////////////////////////////////////
 
 	//---------------------------INITIALISATION OF IRRLICHT----------------------------
 	irr::core::dimension2d<irr::u32> size = irr::core::dimension2d<irr::u32>(1024,768);
@@ -67,6 +61,13 @@ int main()
 	if( grenade )
 		printf("Grenade deployed!\n");
 	////////////////////////////////////////////////////
+	//----------------------------Convex shape------------------
+	CCustomNode* customPyramid = new CCustomNode(smgr->getRootSceneNode(), smgr);
+	customPyramid->setPosition( core::vector3df(0,0,0));
+	std::cout << typeid(customPyramid).name() << std::endl;
+	physx::PxRigidDynamic* PxPyramid = mute->CreatePyramid();
+	CPhysXNode* pyramid = new CPhysXNode(*PxPyramid,*customPyramid);
+	////////////////////////////////////////////////////////////
 
 	//---------------------------------------------plane
 	irr::scene::IMesh* groundPlane = smgr->getGeometryCreator()->createPlaneMesh( 
@@ -112,7 +113,6 @@ int main()
 		node[i]->setMaterialTexture(0, driver->getTexture("D:/media/wall.bmp") );
 		node[i]->setMaterialFlag(irr::video::EMF_LIGHTING, false );
 	}
-	
 	/*for(int i = 1; i < 2; i++)
 	{
 		mute->joinActors(physicsActor[i-1]->getPhysXActor() ,physicsActor[i]->getPhysXActor());
@@ -142,6 +142,7 @@ int main()
 		//actor
 		for(int i = 0; i < MAX; ++i)
 			physicsActor[i]->updatePos();
+		//pyramid->updatePos();
 
 		driver->beginScene( true, true, irr::video::SColor(0,100,100,100) );
 		if( rec->isKeyPressed( irr::KEY_PLUS ) )

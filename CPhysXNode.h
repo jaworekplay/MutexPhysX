@@ -2,7 +2,59 @@
 #include <irrlicht.h>
 #include <PxPhysicsAPI.h>
 #include "MutexPhysX.h"
+
 using namespace irr;
+
+class CCustomNode : public irr::scene::ISceneNode
+{
+private:
+	irr::core::aabbox3d<f32> box;
+	int numberOfVerticies;
+	video::S3DVertex Vertices[4];
+	video::SMaterial material;
+public:
+	CCustomNode( scene::ISceneNode* parent,
+		scene::ISceneManager* smgr,
+		int numOfVertices = 4,
+		s32 id = -1)
+		: scene::ISceneNode( parent,smgr,id), numberOfVerticies(numOfVertices)
+	{
+		material.Wireframe = false;
+		material.Lighting  = false;
+
+		Vertices[0] = video::S3DVertex(0,0,10, 1,1,0,
+            video::SColor(255,0,255,255), 0, 1);
+		Vertices[1] = video::S3DVertex(10,0,-10, 1,0,0,
+				video::SColor(255,255,0,255), 1, 1);
+		Vertices[2] = video::S3DVertex(0,20,0, 0,1,1,
+				video::SColor(255,255,255,0), 1, 0);
+		Vertices[3] = video::S3DVertex(-10,0,-10, 0,0,1,
+				video::SColor(255,0,255,0), 0, 0);
+
+		box.reset(Vertices[0].Pos);
+		for( int i = 0; i < numberOfVerticies; ++i )
+			box.addInternalPoint(Vertices[i].Pos);
+	}
+	virtual void OnRegisterSceneNde()
+	{
+		if( IsVisible )
+			SceneManager->registerNodeForRendering(this);
+		ISceneNode::OnRegisterSceneNode();
+	}
+	virtual void render()
+	{
+		irr::u16 indices[] = {0,2,3  ,2,1,3  ,1,0,3,  2,0,1 };
+		video::IVideoDriver* driver = SceneManager->getVideoDriver();
+
+		driver->setMaterial(material);
+		driver->setTransform(video::ETS_WORLD, AbsoluteTransformation);
+		driver->drawVertexPrimitiveList( &Vertices[0],4, &indices[0],4);
+	}
+
+	virtual const core::aabbox3d<irr::f32>& getBoundingBox() const { return box;}
+	virtual irr::u32 getMaterialCount() const { return 1;}
+	virtual video::SMaterial& getMaterial( irr::u32 i ) { return material;}
+};
 
 class CPhysXNode
 {
@@ -14,12 +66,20 @@ private:
 	irr::scene::ISceneNode* irrActor;
 	irr::core::vector3df	pos;
 	CMutex* mutex;
+	//------------------CUSTOM NODE-----------
+	CCustomNode* irrCustom;
 public:
-	//Constructor
+	/*Constructor*/
 	CPhysXNode( physx::PxRigidDynamic& physicsActor, irr::scene::ISceneNode& irrlichtActor )
 	{
 		pxActor = &physicsActor;
 		irrActor = &irrlichtActor;
+	}
+	CPhysXNode( physx::PxRigidDynamic& physicsActor, CCustomNode& customNode )
+	{
+		pxActor = &physicsActor;
+		irrCustom = &customNode;
+		irrActor = NULL;
 	}
 	//Destructor
 	~CPhysXNode(){}
@@ -33,7 +93,10 @@ public:
 		pos.X = pose.p.x;
 		pos.Y = pose.p.y;
 		pos.Z = pose.p.z;
-		irrActor->setPosition(pos);
+		if( typeid( irrActor ).name() == "class irr::scene::ISceneNode *" )
+			irrActor->setPosition(pos);
+		else
+			irrCustom->setPosition(pos);
 
 		PxMat33 mat = PxMat33::PxMat33( pxActor->getGlobalPose().q ); //this code is from google code thing, because we use Rigid Dynamic already we don't need to static cast ;)
 		irr::core::matrix4 irrM;
@@ -48,30 +111,14 @@ public:
 		fM[9] = mat.column2.y;
 		fM[10] = mat.column2.z;
 		irrM.setM( fM );
-		irrActor->setRotation( irrM.getRotationDegrees() );
+		if( typeid( irrActor ).name() == "class irr::scene::ISceneNode *" )
+			irrActor->setRotation( irrM.getRotationDegrees() );
+		else
+			irrCustom->setRotation( irrM.getRotationDegrees() );
 	}
 	irr::scene::ISceneNode* getIrrNode() const { return irrActor; }
 	physx::PxRigidDynamic* getPhysXActor() const { return pxActor; }
-};
-
-class CCustomNode : public irr::scene::ISceneNode
-{
-private:
-	irr::core::aabbox3d<f32> box;
-	int numberOfVerticies;
-	video::S3DVertex* Vertices;
-	video::SMaterial material;
-public:
-	CCustomNode( int numOfVertices, scene::ISceneNode* parent, scene::ISceneManager* smgr, s32 id)
-		: scene::ISceneNode( parent,smgr,id), numberOfVerticies(numOfVertices)
-	{
-		material.Wireframe = false;
-		material.Lighting  = false;
-
-		for( int i = 0; i < numberOfVerticies; ++i)
-		{
-		}
-	}
+	CCustomNode* getCustomNode() const { return irrCustom; }
 };
 
 class CPhysXCloth

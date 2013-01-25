@@ -426,7 +426,7 @@ public:
 		printf("saving to file should work now.\n");
 		return true;
 	}
-	virtual const bool CreatePyramid()
+	virtual physx::PxRigidDynamic* CreatePyramid()
 	{
 		static const PxVec3 verts[] = {PxVec3(0,1,0), PxVec3(1,0,0), PxVec3(-1,0,0), PxVec3(0,0,1), PxVec3(0,0,-1)};
 		pyrDesc.points.count = 5;
@@ -448,7 +448,7 @@ public:
 			pyrShape = pyrAct->createShape( physx::PxConvexMeshGeometry( pyr ), *mMaterial );// remember to give dereferenced pointer for materials ^_^
 			mScene->addActor( *pyrAct );
 			printf("STATUS || Convex mesh = TRUE;\n");
-			return true;
+			return pyrAct;
 		}
 	return false;
 	}
