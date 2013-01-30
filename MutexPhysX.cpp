@@ -109,15 +109,21 @@ int main()
 	for( int i = 0; i < MAX; i++ )
 	{
 		node[i] = physicsActor[i]->getIrrNode();
-		//node[i]->setDebugDataVisible(-1);
 		node[i]->setMaterialTexture(0, driver->getTexture("D:/media/wall.bmp") );
 		node[i]->setMaterialFlag(irr::video::EMF_LIGHTING, false );
 	}
-	/*for(int i = 1; i < 2; i++)
+	//-------Vehicle model------
+	irr::scene::IMesh* racerLSChassis = smgr->getMesh("D:/media/vehicle/Racer-LS-chassis.mesh");
+	irr::scene::IMeshSceneNode* RacerChassis = smgr->addMeshSceneNode( racerLSChassis );
+	////////////////////////////
+	//Battlefield models for our character
+	irr::scene::IMesh* bfChar = smgr->getMesh("D:/media/talib/BF3_Taliban.3ds");
+	irr::scene::IMeshSceneNode* bfTalib = smgr->addMeshSceneNode( bfChar );
+	if( bfTalib )
 	{
-		mute->joinActors(physicsActor[i-1]->getPhysXActor() ,physicsActor[i]->getPhysXActor());
-	}*/
-
+		bfTalib->setMaterialFlag( irr::video::EMF_LIGHTING, false );
+		/*bfTalib->setMaterialTexture( 0, driver->getTexture("D:/media/talib/ -----no textures for now :/*/ 
+	}
 
 	//----------------------------------------camera
 	irr::scene::ICameraSceneNode* cam;

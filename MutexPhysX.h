@@ -15,6 +15,7 @@
 #include <time.h>
 #include <math.h>
 #include <vector>
+#include <vehicle/PxVehicleSDK.h>
 
 #include <irrlicht.h>
 #ifdef DESTRUCTION
@@ -51,9 +52,15 @@ protected:
 	physx::PxReal					mDebugRenderScale;
 	//------------------------------Materials
 	physx::PxMaterial*				mMaterial;
-	//------------------------------PxActor
-	physx::PxRigidDynamic*			mSphereActor;
-	physx::PxShape*					mSphereShape;
+	//------------------------------PxActors
+		//--------------------SPHERE-----------------
+		physx::PxRigidDynamic*			mSphereActor;
+		physx::PxShape*					mSphereShape;
+		/////////////////////////////////////////////
+
+		//--------------------GENERIC ACTOR - CAN BE ANYTHING
+
+		/////////////////////////////////////////////////////
 	std::vector<physx::PxRigidActor*> mvActors;
 	std::vector<physx::PxRigidActor*>::iterator iterator;
 	physx::PxTransform				pose;
@@ -149,6 +156,7 @@ public:
 #endif
 		//wtf ?
 		sceneDesc.flags |= physx::PxSceneFlag::eENABLE_ACTIVETRANSFORMS;
+		sceneDesc.flags |= PxSceneFlag::eENABLE_SWEPT_INTEGRATION;//this is to enable the CCD(Continous Collision Detection )
 		mScene = mPhysX->createScene( sceneDesc );
 
 		CMutex::mDebugRenderScale = 0.5f;
@@ -186,6 +194,10 @@ public:
 		mScene->simulate( mStepSize );
 		mScene->fetchResults(true);
 		return true;
+	}
+	virtual physx::PxRigidDynamic* shootABullet()
+	{
+		return CMutex::mSphereActor;
 	}
 	//Description
 	//This function will create an actor
@@ -238,7 +250,7 @@ public:
 
 	virtual void moveLeft(){mSphereActor->addForce( PxVec3(-10.f,0.f,0.f), physx::PxForceMode::eIMPULSE );}
 	virtual void moveRight(){mSphereActor->addForce( PxVec3(10.f,0.f,0.f), physx::PxForceMode::eIMPULSE );}
-	virtual void Jump(){mSphereActor->addForce( PxVec3(0.f,10.f,0.f), physx::PxForceMode::eIMPULSE );}
+	virtual void Jump(){mSphereActor->addForce( PxVec3(0.f,100.f,0.f), physx::PxForceMode::eIMPULSE );}
 	virtual void moveIn(){mSphereActor->addForce( PxVec3(0.f,0.f,-10.f), physx::PxForceMode::eIMPULSE );}
 	virtual void moveOut(){mSphereActor->addForce( PxVec3(0.f,0.f,10.f), physx::PxForceMode::eIMPULSE );}
 
@@ -513,3 +525,32 @@ public:
 	//APEX needs a memory allocator and error stream. By default it uses the PhysX one
 };
 #endif
+
+class CVehicle : public CMutex
+{
+private:
+	physx::PxVehicleWheelsSimData* m_wheelSimData;
+	physx::PxVehicleDriveSimData4W m_driveData;
+	physx::PxVehicleChassisData m_chassisData;
+public:
+	CVehicle()
+	{
+		//required to initiate the vehicle SDK - yes vehicles have their own SDK -_-
+		PxInitVehicleSDK( *CMutex::mPhysX );
+	}
+	~CVehicle() {PxCloseVehicleSDK();}
+
+	virtual void createVehicle4WSimulationData( 
+		const PxF32 chassisMass,
+		physx::PxConvexMesh* chassisConvexMesh,
+		const PxF32 wheelMass,
+		physx::PxConvexMesh** wheelConvexMeshes,
+		const PxVec3* wheelCentreOffsets,
+		physx::PxVehicleWheelsSimData& wheelsData,
+		physx::PxVehicleDriveSimData4W& driveData,
+		physx::PxVehicleChassisData& chassisData )
+	{
+		//extract the chassis AABB dimensions from the chassis convex mesh
+		const PxVec3 chassisDims;
+	}
+};
