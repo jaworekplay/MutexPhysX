@@ -70,15 +70,15 @@ private:
 	CCustomNode* irrCustom;
 public:
 	/*Constructor*/
-	CPhysXNode( physx::PxRigidDynamic& physicsActor, irr::scene::ISceneNode& irrlichtActor )
+	CPhysXNode( physx::PxRigidDynamic* physicsActor, irr::scene::ISceneNode* irrlichtActor )
 	{
-		pxActor = &physicsActor;
-		irrActor = &irrlichtActor;
+		pxActor = physicsActor;
+		irrActor = irrlichtActor;
 	}
-	CPhysXNode( physx::PxRigidDynamic& physicsActor, CCustomNode& customNode )
+	CPhysXNode( physx::PxRigidDynamic* physicsActor, CCustomNode* customNode )
 	{
-		pxActor = &physicsActor;
-		irrCustom = &customNode;
+		pxActor = physicsActor;
+		irrCustom = customNode;
 		irrActor = NULL;
 	}
 	//Destructor
@@ -93,11 +93,11 @@ public:
 		pos.X = pose.p.x;
 		pos.Y = pose.p.y;
 		pos.Z = pose.p.z;
-		if( typeid( irrActor ).name() == "class irr::scene::ISceneNode *" )
+		/*if( typeid( irrActor ).name() == "class irr::scene::ISceneNode *" )*/
 			irrActor->setPosition(pos);
-		else
+		/*else
 			irrCustom->setPosition(pos);
-
+*/
 		PxMat33 mat = PxMat33::PxMat33( pxActor->getGlobalPose().q ); //this code is from google code thing, because we use Rigid Dynamic already we don't need to static cast ;)
 		irr::core::matrix4 irrM;
 		irr::f32 fM[16];
@@ -111,10 +111,10 @@ public:
 		fM[9] = mat.column2.y;
 		fM[10] = mat.column2.z;
 		irrM.setM( fM );
-		if( typeid( irrActor ).name() == "class irr::scene::ISceneNode *" )
+		/*if( typeid( irrActor ).name() == "class irr::scene::ISceneNode *" )*/
 			irrActor->setRotation( irrM.getRotationDegrees() );
-		else
-			irrCustom->setRotation( irrM.getRotationDegrees() );
+		/*else
+			irrCustom->setRotation( irrM.getRotationDegrees() );*/
 	}
 	irr::scene::ISceneNode* getIrrNode() const { return irrActor; }
 	physx::PxRigidDynamic* getPhysXActor() const { return pxActor; }

@@ -62,11 +62,11 @@ int main()
 		printf("Grenade deployed!\n");
 	////////////////////////////////////////////////////
 	//----------------------------Convex shape------------------
-	CCustomNode* customPyramid = new CCustomNode(smgr->getRootSceneNode(), smgr);
+	/*CCustomNode* customPyramid = new CCustomNode(smgr->getRootSceneNode(), smgr);
 	customPyramid->setPosition( core::vector3df(0,0,0));
 	std::cout << typeid(customPyramid).name() << std::endl;
 	physx::PxRigidDynamic* PxPyramid = mute->CreatePyramid();
-	CPhysXNode* pyramid = new CPhysXNode(*PxPyramid,*customPyramid);
+	CPhysXNode* pyramid = new CPhysXNode(PxPyramid,customPyramid);*/
 	////////////////////////////////////////////////////////////
 
 	//---------------------------------------------plane
@@ -100,7 +100,7 @@ int main()
 	CPhysXNode* physicsActor[MAX];
 	for( int i = 0; i < MAX; i++ )
 	{
-		physicsActor[i] = new CPhysXNode( *mute->CreateActor(pos) , *smgr->addSphereSceneNode(2.f) ); // Physics Actor instance: PhysX actor, irrlicht Sphere Scene Node
+		physicsActor[i] = new CPhysXNode( mute->CreateActor(pos) , smgr->addSphereSceneNode(2.f) ); // Physics Actor instance: PhysX actor, irrlicht Sphere Scene Node
 		pos.x = rand() % 100;
 		pos.z = rand() % 100;
 		
