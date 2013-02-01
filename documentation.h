@@ -33,4 +33,5 @@ V0.001	-	Implemented the XML reader to use it for mesh creation from the APEX me
 - Our application needs to be rearranged to allow us to use the XML reader, I will do this only if you guys are OK with it. More info on the GitHub.			//Lukasz
 - Added some base for the audio.																																//Lukasz
 - Added MeshImport for the APEX meshes and some functionality to use with Irrlicht																				//Lukasz
+- Tiding things up in code - some features are going to be moved to classes																						//Lukasz
 */

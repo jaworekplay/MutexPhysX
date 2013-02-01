@@ -4,6 +4,9 @@
 #include "MutexPhysX.h"
 
 using namespace irr;
+using namespace physx;
+
+class CMutex;
 
 class CCustomNode : public irr::scene::ISceneNode
 {

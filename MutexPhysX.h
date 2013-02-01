@@ -1,7 +1,6 @@
 #pragma once
 //to use destruction with APEX you need to define DESTRUCTION variable
-#include "CEventRec.h"
-#include "MeshImportTypes.h"
+
 #include <PxPhysicsAPI.h>
 #include <PxToolkit.h>
 
@@ -18,12 +17,86 @@
 #include <vehicle/PxVehicleSDK.h>
 
 #include <irrlicht.h>
+#include "ICustomEventReceiver.h"
+#include "CPhysXNode.h"												
+																	
+#include <driverChoice.h>											
+#include "libraries.h"												
+#include <Windows.h>												
+#include <iostream>													
+#include <driverChoice.h>											
+#include <time.h>													
+#include "documentation.h"											
+#include "audio.h"					
+
+
+
 #ifdef DESTRUCTION
 #include <NxApex.h>
+#include "MeshImportTypes.h"
+
+using namespace mimp;
 #endif
 
 using namespace physx;
-using namespace mimp;
+
+
+class CIrrlichtBase
+{
+private:
+	ICustomEventReceiver* rec;
+	irr::core::dimension2d<irr::u32> size;
+	irr::video::E_DRIVER_TYPE driverType;
+	irr::IrrlichtDevice* device;
+	CMutex* mute;
+public:
+	irr::scene::ISceneManager* smgr;
+	irr::video::IVideoDriver* driver;
+	AudioEngine* audio;
+public:
+	CIrrlichtBase()
+	{
+		rec = new ICustomEventReceiver();
+		size = irr::core::dimension2d<irr::u32>(1024,768);
+		driverType = irr::video::EDT_OPENGL;//using OpenGL driver
+		device = createDevice(driverType,size,16,false,false,false,rec);
+		smgr = device->getSceneManager();
+		driver = device->getVideoDriver();
+		
+		/*if( rec->isKeyPressed( irr::KEY_KEY_A ) )
+			mute->moveLeft();
+		if( rec->isKeyPressed( irr::KEY_KEY_D ) )
+			mute->moveRight();
+		if( rec->isKeyPressed( irr::KEY_KEY_W ) )
+			mute->moveOut();
+		if( rec->isKeyPressed( irr::KEY_KEY_S ) )
+			mute->moveIn();
+		if( rec->isKeyPressed( irr::KEY_SPACE ) )
+			mute->Jump();*/
+		//this needs to wrapped so we can use it inside the class without use of the id statement
+	}
+	~CIrrlichtBase()
+	{
+		device->drop();
+	}
+public:
+	virtual bool addNPC(){return true;}
+	virtual bool addPhysXNPC(){return true;}
+	virtual bool addObject(){return true;}
+	virtual bool addPhysXObject(){return true;}
+	virtual bool addPlayerCharacter(){return true;}
+	virtual bool render()
+	{
+		while(device->run())
+		{
+			driver->beginScene( true, true, irr::video::SColor(0,100,100,100) );
+			smgr->drawAll();
+			device->getGUIEnvironment()->drawAll();
+			driver->endScene();
+		}
+		return true;
+	}
+};
 
 class CMutex
 {
@@ -416,6 +489,7 @@ public:
 		printf("Flags created.\n");
 		pCon = PVD::PxVisualDebuggerExt::createConnection( mPhysX->getPvdConnectionManager(),
 			pvd_host_ip,port,timeOut,conFlags);
+		printf("Creation of network connection to PVD was a success!\n");
 		return true;
 	}
 	//Description
