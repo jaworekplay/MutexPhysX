@@ -1,6 +1,5 @@
 #pragma once
 #include <irrlicht.h>
-#include <PxPhysicsAPI.h>
 #include "MutexPhysX.h"
 #include "CCustomNode.h"
 

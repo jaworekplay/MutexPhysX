@@ -1,5 +1,6 @@
 #include "MutexPhysX.h"	
 #include "ICustomEventReceiver.h"
+#include "IrrlichtBase.h"
 								
 physx::PxFoundation* initPhysX()
 {
@@ -20,53 +21,22 @@ physx::PxFoundation* initPhysX()
 
 //jaworekplay
 //I thought it would be easier to use constant value to define number of actors in the scene
-const unsigned __int16 MAX = 100;
 
 //int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 int main()
 {
 	srand ( time(NULL) );
-	CMutex* mute = new CMutex( initPhysX() /*CudaManager()*/ );
-
-	//-----------------------------PVD--------------------------
+	CMutex* mute = new CMutex( initPhysX() );
 	mute->StartPvdNetwork();
-	////////////////////////////////////////////////////////////
-	//-----------------------------Evebt Receiver---------------
-	ICustomEventReceiver* rec = new ICustomEventReceiver();
-	////////////////////////////////////////////////////////////
-
+	//-----------------------------Event Receiver---------------
+		ICustomEventReceiver* rec = new ICustomEventReceiver();
 	//---------------------------INITIALISATION OF IRRLICHT----------------------------
-	CIrrlichtBase* irrl = new CIrrlichtBase(*mute, *rec);
-	///////////////////////////////////////////////////////////////////////////////////
-	//--------------------------AUDIO-------------------
-	//-----------------------------------this is used instead of AudioEngine audio = new AudioEngine( bool "true" or "false" );, reason why used saves time in writing too much code
-	////////////////////////////////////////////////////
-
+		CIrrlichtBase* irrl = new CIrrlichtBase(*mute, *rec);
 	//---------------------------The new way of including actors
-	mute->CreatePyramid();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	//--------------------------GRENADE-----------------
-	scene::IAnimatedMeshSceneNode* grenade = irrl->smgr->addAnimatedMeshSceneNode( irrl->smgr->getMesh("frac_grenade.obj"),0,-1,core::vector3df(0,20,0) );
+	/*scene::IAnimatedMeshSceneNode* grenade = irrl->smgr->addAnimatedMeshSceneNode( irrl->smgr->getMesh("frac_grenade.obj"),0,-1,core::vector3df(0,20,0) );
 	if( grenade )
-		printf("Grenade deployed!\n");
+		printf("Grenade deployed!\n");*/
 	////////////////////////////////////////////////////
 	//----------------------------Convex shape------------------
 	/*CCustomNode* customPyramid = new CCustomNode(smgr->getRootSceneNode(), smgr);
@@ -77,17 +47,17 @@ int main()
 	////////////////////////////////////////////////////////////
 
 	//---------------------------------------------plane
-	irr::scene::IMesh* groundPlane = irrl->smgr->getGeometryCreator()->createPlaneMesh( 
-		irr::core::dimension2d<irr::f32>(10,10), 
-		irr::core::dimension2d<irr::u32>(10,10), 
-		&irrl->smgr->getVideoDriver()->getMaterial2D(), 
-		irr::core::dimension2d<irr::f32>(10,10) );
-	irr::scene::ISceneNode* Plane = irrl->smgr->addMeshSceneNode(groundPlane);
-	Plane->setPosition( irr::core::vector3df(0.f, 0.f,15.f) );
-	Plane->setRotation(irr::core::vector3df(0.f) );
-	//Plane->setAutomaticCulling( irr::scene::EAC_OFF );
-	Plane->setMaterialTexture(0,irrl->driver->getTexture("media/rockwall.jpg") );
-	Plane->setMaterialFlag(irr::video::EMF_LIGHTING, false );
+	//irr::scene::IMesh* groundPlane = irrl->smgr->getGeometryCreator()->createPlaneMesh( 
+	//	irr::core::dimension2d<irr::f32>(10,10), 
+	//	irr::core::dimension2d<irr::u32>(10,10), 
+	//	&irrl->smgr->getVideoDriver()->getMaterial2D(), 
+	//	irr::core::dimension2d<irr::f32>(10,10) );
+	//irr::scene::ISceneNode* Plane = irrl->smgr->addMeshSceneNode(groundPlane);
+	//Plane->setPosition( irr::core::vector3df(0.f, 0.f,15.f) );
+	//Plane->setRotation(irr::core::vector3df(0.f) );
+	////Plane->setAutomaticCulling( irr::scene::EAC_OFF );
+	//Plane->setMaterialTexture(0,irrl->driver->getTexture("media/rockwall.jpg") );
+	//Plane->setMaterialFlag(irr::video::EMF_LIGHTING, false );
 	//Plane->setDebugDataVisible( irr::scene::EDS_SKELETON );
 	//////////////////////////////////////////////////////
 	//--------------------------------------------XML-----
@@ -102,28 +72,8 @@ int main()
 	irr::scene::ISceneNode* cloth = smgr->addMeshSceneNode( clothMesh,0,-1, irr::core::vector3df(0.f,20.f,0.f) );*/
 	//mute->CreateCloth();
 	//------------------ALPHA !!!
-	
-	PxVec3 pos(PxVec3(0.f,0.f,0.f));
-	CPhysXNode* physicsActor[MAX];
-	for( int i = 0; i < MAX; i++ )
-	{
-		physicsActor[i] = new CPhysXNode( mute->CreateActor(pos) , irrl->smgr->addSphereSceneNode(5.f) ); // Physics Actor instance: PhysX actor, irrlicht Sphere Scene Node
-		pos.x = rand() % 100;
-		pos.z = rand() % 100;
-		
-	}
-	irr::scene::ISceneNode* node[MAX];
-	for( int i = 0; i < MAX; i++ )
-	{
-		node[i] = physicsActor[i]->getIrrNode();
-		node[i]->setMaterialTexture(0, irrl->driver->getTexture("D:/media/wall.bmp") );
-		node[i]->setMaterialFlag(irr::video::EMF_LIGHTING, false );
-	}
 	//-------Vehicle model------
-	irr::scene::IMesh* racerLSChassis = irrl->smgr->getMesh("D:/media/vehicle/Racer-LS-chassis.mesh");
-	irr::scene::IMeshSceneNode* RacerChassis = irrl->smgr->addMeshSceneNode( racerLSChassis );
-	RacerChassis->setMaterialFlag( irr::video::EMF_LIGHTING, false);
-	RacerChassis->setPosition( irr::core::vector3df(50.f));
+	
 	////////////////////////////
 	//Battlefield models for our character
 	//irr::scene::IMesh* bfChar = irrl->smgr->getMesh("D:/media/talib/BF3_Taliban.3ds");
@@ -135,13 +85,8 @@ int main()
 	//}
 
 	//----------------------------------------camera
-	irr::scene::ICameraSceneNode* cam;
-	cam = irrl->smgr->addCameraSceneNodeFPS();
-	cam->setPosition( irr::core::vector3df( 0.f, 70.f, -50.f ) );
-	cam->setFarValue( 10000.f );
 	////////////////////////////////////////////////
-		for(int i = 0; i < MAX; ++i)
-			physicsActor[i]->updatePos();
+		
 		//pyramid->updatePos();
 	irrl->render();
 		

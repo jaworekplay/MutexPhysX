@@ -1,6 +1,4 @@
 #pragma once
-//to use destruction with APEX you need to define DESTRUCTION variable
-
 #include <PxPhysicsAPI.h>
 #include <PxToolkit.h>
 
@@ -27,8 +25,6 @@
 #include "audio.h"		
 #include "libraries.h"
 #include "ICustomEventReceiver.h"
-#include "CPhysXNode.h"	
-#include "IrrlichtBase.h"
 
 using namespace physx;
 
@@ -103,6 +99,9 @@ protected:
 	physx::PxConvexMeshDesc			pyrDesc;
 	physx::PxShape*					pyrShape;
 	physx::PxRigidDynamic*			pyrAct;
+	int								m_verts[15];
+	//------------------------------Plane
+	physx::PxPlane*					m_plane;
 public:
 	//Description
 	//Constructor
@@ -173,6 +172,9 @@ public:
 		mScene->setVisualizationParameter( PxVisualizationParameter::eJOINT_LOCAL_FRAMES, 1.f);
 		mScene->setVisualizationParameter( PxVisualizationParameter::eJOINT_LIMITS, 1.f);
 		//adding static ground plane and adding it to the simulation
+		//jaworekplay
+		//EDIT:When we change the "1" in PxQuat(1,x) the force of polarity of gravity is being changed.
+		//EDIT:changed "1" in PxTransform(1,2,3) to 10 from 0
 		pose = PxTransform(PxVec3(0.f,0.f,0.f), PxQuat(PxHalfPi, PxVec3(0.f,0.f,1.f) ) );
 		plane = mPhysX->createRigidStatic(pose);
 		plane->createShape( PxPlaneGeometry(), *mMaterial );
@@ -211,8 +213,8 @@ public:
 	//either static or rigid: kinematic or ragdoll
 	//TO DO
 	virtual physx::PxRigidDynamic* CreateActor( physx::PxVec3& position = PxVec3(0.f,100.f,0.f),
-												physx::PxReal sphereRadius = physx::PxReal(2.f), 
-												physx::PxVec3& velocity = physx::PxVec3(0.f, 0.f,0.f) )
+												physx::PxReal sphereRadius = PxReal(10.f), 
+												physx::PxVec3& velocity = PxVec3(0.f, 0.f,0.f) )
 	{
 		mPhysX->getMaterials( &mMaterial, 1 );
 		density = PxReal(150.f);
@@ -257,7 +259,7 @@ public:
 
 	virtual void moveLeft(){mSphereActor->addForce( PxVec3(-10.f,0.f,0.f), physx::PxForceMode::eIMPULSE );}
 	virtual void moveRight(){mSphereActor->addForce( PxVec3(10.f,0.f,0.f), physx::PxForceMode::eIMPULSE );}
-	virtual void Jump(){mSphereActor->addForce( PxVec3(0.f,100.f,0.f), physx::PxForceMode::eIMPULSE );}
+	virtual void Jump(){mSphereActor->addForce( PxVec3(0.f,10.f,0.f), physx::PxForceMode::eACCELERATION);}
 	virtual void moveIn(){mSphereActor->addForce( PxVec3(0.f,0.f,-10.f), physx::PxForceMode::eIMPULSE );}
 	virtual void moveOut(){mSphereActor->addForce( PxVec3(0.f,0.f,10.f), physx::PxForceMode::eIMPULSE );}
 
@@ -448,7 +450,15 @@ public:
 	}
 	virtual physx::PxRigidDynamic* CreatePyramid()
 	{
-		static const PxVec3 verts[] = {PxVec3(0,1,0), PxVec3(1,0,0), PxVec3(-1,0,0), PxVec3(0,0,1), PxVec3(0,0,-1)};
+		PxVec3 verts[] = {PxVec3(0,1,0), PxVec3(1,0,0), PxVec3(-1,0,0), PxVec3(0,0,1), PxVec3(0,0,-1)};
+		int j = 0;
+		for(int i = 0; i < 15; i += 3)
+		{
+			m_verts[i] = verts[j].x;
+			m_verts[i + 1] = verts[j].y;
+			m_verts[i + 2] = verts[j].z;
+			++j;
+		}
 		pyrDesc.points.count = 5;
 		pyrDesc.points.stride = sizeof(PxVec3);
 		pyrDesc.points.data = verts;
@@ -466,11 +476,16 @@ public:
 			pyr = mPhysX->createConvexMesh( input );
 			pyrAct = mPhysX->createRigidDynamic( physx::PxTransform( PxVec3(0,15,0) ) );
 			pyrShape = pyrAct->createShape( physx::PxConvexMeshGeometry( pyr ), *mMaterial );// remember to give dereferenced pointer for materials ^_^
+			pyrAct->userData = verts;
 			mScene->addActor( *pyrAct );
 			printf("STATUS || Convex mesh = TRUE;\n");
 			return pyrAct;
 		}
 	return false;
+	}
+	virtual int*  getVertices()
+	{
+		return m_verts;
 	}
 
 	virtual physx::PxFoundation* FoundationCallback(){return mFoundation;}
