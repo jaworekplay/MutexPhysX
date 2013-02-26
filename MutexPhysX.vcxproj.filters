@@ -32,9 +32,6 @@
     <ClInclude Include="CPhysXNode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="EPhysXCharacterCollisionGroup.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ICustomEventReceiver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -47,10 +44,22 @@
     <ClInclude Include="includes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="XMLManager.h">
+    <ClInclude Include="audio.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="audio.h">
+    <ClInclude Include="CCustomNode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CPhysXCloth.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IrrlichtBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysxVehicle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="APEXDestruction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

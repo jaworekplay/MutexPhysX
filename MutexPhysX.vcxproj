@@ -89,16 +89,19 @@
     <ClCompile Include="MutexPhysX.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="APEXDestruction.h" />
     <ClInclude Include="audio.h" />
+    <ClInclude Include="CCustomNode.h" />
+    <ClInclude Include="CPhysXCloth.h" />
     <ClInclude Include="CPhysXNode.h" />
     <ClInclude Include="documentation.h" />
-    <ClInclude Include="EPhysXCharacterCollisionGroup.h" />
     <ClInclude Include="ICustomEventReceiver.h" />
     <ClInclude Include="includes.h" />
     <ClInclude Include="INfo.h" />
+    <ClInclude Include="IrrlichtBase.h" />
     <ClInclude Include="libraries.h" />
     <ClInclude Include="MutexPhysX.h" />
-    <ClInclude Include="XMLManager.h" />
+    <ClInclude Include="PhysxVehicle.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

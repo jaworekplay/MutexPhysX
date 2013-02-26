@@ -1,4 +1,5 @@
 #include "MutexPhysX.h"	
+#include "ICustomEventReceiver.h"
 								
 physx::PxFoundation* initPhysX()
 {
@@ -30,13 +31,38 @@ int main()
 	//-----------------------------PVD--------------------------
 	mute->StartPvdNetwork();
 	////////////////////////////////////////////////////////////
+	//-----------------------------Evebt Receiver---------------
+	ICustomEventReceiver* rec = new ICustomEventReceiver();
+	////////////////////////////////////////////////////////////
 
 	//---------------------------INITIALISATION OF IRRLICHT----------------------------
-	CIrrlichtBase* irrl = new CIrrlichtBase();
+	CIrrlichtBase* irrl = new CIrrlichtBase(*mute, *rec);
 	///////////////////////////////////////////////////////////////////////////////////
 	//--------------------------AUDIO-------------------
 	//-----------------------------------this is used instead of AudioEngine audio = new AudioEngine( bool "true" or "false" );, reason why used saves time in writing too much code
 	////////////////////////////////////////////////////
+
+	//---------------------------The new way of including actors
+	mute->CreatePyramid();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	//--------------------------GRENADE-----------------
 	scene::IAnimatedMeshSceneNode* grenade = irrl->smgr->addAnimatedMeshSceneNode( irrl->smgr->getMesh("frac_grenade.obj"),0,-1,core::vector3df(0,20,0) );
 	if( grenade )
@@ -56,13 +82,13 @@ int main()
 		irr::core::dimension2d<irr::u32>(10,10), 
 		&irrl->smgr->getVideoDriver()->getMaterial2D(), 
 		irr::core::dimension2d<irr::f32>(10,10) );
-	irr::scene::ISceneNode* Plane = irrl->smgr->addMeshSceneNode(groundPlane );
+	irr::scene::ISceneNode* Plane = irrl->smgr->addMeshSceneNode(groundPlane);
 	Plane->setPosition( irr::core::vector3df(0.f, 0.f,15.f) );
 	Plane->setRotation(irr::core::vector3df(0.f) );
-	Plane->setAutomaticCulling( irr::scene::EAC_OFF );
+	//Plane->setAutomaticCulling( irr::scene::EAC_OFF );
 	Plane->setMaterialTexture(0,irrl->driver->getTexture("media/rockwall.jpg") );
-	Plane->setMaterialFlag(irr::video::EMF_LIGHTING, true );
-	Plane->setDebugDataVisible( irr::scene::EDS_FULL );
+	Plane->setMaterialFlag(irr::video::EMF_LIGHTING, false );
+	//Plane->setDebugDataVisible( irr::scene::EDS_SKELETON );
 	//////////////////////////////////////////////////////
 	//--------------------------------------------XML-----
 	//jaworekplay
@@ -81,7 +107,7 @@ int main()
 	CPhysXNode* physicsActor[MAX];
 	for( int i = 0; i < MAX; i++ )
 	{
-		physicsActor[i] = new CPhysXNode( mute->CreateActor(pos) , irrl->smgr->addSphereSceneNode(2.f) ); // Physics Actor instance: PhysX actor, irrlicht Sphere Scene Node
+		physicsActor[i] = new CPhysXNode( mute->CreateActor(pos) , irrl->smgr->addSphereSceneNode(5.f) ); // Physics Actor instance: PhysX actor, irrlicht Sphere Scene Node
 		pos.x = rand() % 100;
 		pos.z = rand() % 100;
 		
@@ -96,15 +122,17 @@ int main()
 	//-------Vehicle model------
 	irr::scene::IMesh* racerLSChassis = irrl->smgr->getMesh("D:/media/vehicle/Racer-LS-chassis.mesh");
 	irr::scene::IMeshSceneNode* RacerChassis = irrl->smgr->addMeshSceneNode( racerLSChassis );
+	RacerChassis->setMaterialFlag( irr::video::EMF_LIGHTING, false);
+	RacerChassis->setPosition( irr::core::vector3df(50.f));
 	////////////////////////////
 	//Battlefield models for our character
-	irr::scene::IMesh* bfChar = irrl->smgr->getMesh("D:/media/talib/BF3_Taliban.3ds");
-	irr::scene::IMeshSceneNode* bfTalib = irrl->smgr->addMeshSceneNode( bfChar );
-	if( bfTalib )
-	{
-		bfTalib->setMaterialFlag( irr::video::EMF_LIGHTING, false );
-		/*bfTalib->setMaterialTexture( 0, driver->getTexture("D:/media/talib/ -----no textures for now :/*/ 
-	}
+	//irr::scene::IMesh* bfChar = irrl->smgr->getMesh("D:/media/talib/BF3_Taliban.3ds");
+	//irr::scene::IMeshSceneNode* bfTalib = irrl->smgr->addMeshSceneNode( bfChar );
+	//if( bfTalib )
+	//{
+	//	bfTalib->setMaterialFlag( irr::video::EMF_LIGHTING, false );
+	//	/*bfTalib->setMaterialTexture( 0, driver->getTexture("D:/media/talib/ -----no textures for now :/*/ 
+	//}
 
 	//----------------------------------------camera
 	irr::scene::ICameraSceneNode* cam;
@@ -112,10 +140,6 @@ int main()
 	cam->setPosition( irr::core::vector3df( 0.f, 70.f, -50.f ) );
 	cam->setFarValue( 10000.f );
 	////////////////////////////////////////////////
-		mute->getResults();
-		//update for debugging
-		mute->advance(0.05);
-		//actor
 		for(int i = 0; i < MAX; ++i)
 			physicsActor[i]->updatePos();
 		//pyramid->updatePos();

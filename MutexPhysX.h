@@ -16,108 +16,21 @@
 #include <vector>
 #include <vehicle/PxVehicleSDK.h>
 
-#include <irrlicht.h>
-#include "ICustomEventReceiver.h"
-#include "CPhysXNode.h"												
-																	
-#include <driverChoice.h>											
-#include "libraries.h"												
+#include <irrlicht.h>												
+#include <driverChoice.h>																			
 #include <Windows.h>												
 #include <iostream>													
 #include <driverChoice.h>											
-#include <time.h>													
+#include <time.h>
+
 #include "documentation.h"											
-#include "audio.h"					
-
-
-
-#ifdef DESTRUCTION
-#include <NxApex.h>
-#include "MeshImportTypes.h"
-
-using namespace mimp;
-#endif
+#include "audio.h"		
+#include "libraries.h"
+#include "ICustomEventReceiver.h"
+#include "CPhysXNode.h"	
+#include "IrrlichtBase.h"
 
 using namespace physx;
-
-
-class CIrrlichtBase
-{
-private:
-	ICustomEventReceiver* rec;
-	irr::core::dimension2d<irr::u32> size;
-	irr::video::E_DRIVER_TYPE driverType;
-	irr::IrrlichtDevice* device;
-	irr::scene::IMesh* mesh;
-	irr::scene::ISceneNode* m_rootNode;
-	irr::core::vector3df m_pos;
-	irr::core::vector3df m_rot;
-	irr::core::vector3df m_scale;
-	std::vector<int> m_vNPC;
-	std::vector<int> m_vPxNPC;
-	std::vector<int> m_vObj;
-	std::vector<int> m_vPxObj;
-	CMutex* mute;
-public:
-	irr::scene::ISceneManager* smgr;
-	irr::video::IVideoDriver* driver;
-	AudioEngine* audio;
-public:
-	CIrrlichtBase()
-	{
-		rec = new ICustomEventReceiver();
-		size = irr::core::dimension2d<irr::u32>(1024,768);
-		driverType = irr::video::EDT_OPENGL;//using OpenGL driver
-		device = createDevice(driverType,size,16,false,false,false,rec);
-		smgr = device->getSceneManager();
-		driver = device->getVideoDriver();
-		m_rootNode = smgr->getRootSceneNode();
-		m_pos = m_rot = irr::core::vector3df(0,0,0);
-		m_scale = irr::core::vector3df(1,1,1);
-		/*if( rec->isKeyPressed( irr::KEY_KEY_A ) )
-			mute->moveLeft();
-		if( rec->isKeyPressed( irr::KEY_KEY_D ) )
-			mute->moveRight();
-		if( rec->isKeyPressed( irr::KEY_KEY_W ) )
-			mute->moveOut();
-		if( rec->isKeyPressed( irr::KEY_KEY_S ) )
-			mute->moveIn();
-		if( rec->isKeyPressed( irr::KEY_SPACE ) )
-			mute->Jump();*/
-		//this needs to wrapped so we can use it inside the class without use of the id statement
-	}
-	~CIrrlichtBase()
-	{
-		device->drop();
-	}
-public:
-	virtual bool addNPC(){return true;}
-	virtual bool addPhysXNPC(){return true;}
-	virtual bool addObject(irr::io::path& fileName, char* ID, irr::core::vector3df& Position)
-	{
-		int id = (int)ID;
-		mesh = smgr->getMesh(fileName);
-		if( Position.equals( m_pos ) )
-			smgr->addMeshSceneNode(mesh,m_rootNode,id,m_pos,m_rot,m_scale);
-		else
-			smgr->addMeshSceneNode(mesh,m_rootNode,id,Position,m_rot,m_scale);
-		m_vObj.push_back(id);
-		return true;
-	}
-	virtual bool addPhysXObject(){return true;}
-	virtual bool addPlayerCharacter(){return true;}
-	virtual bool render()
-	{
-		while(device->run())
-		{
-			driver->beginScene( true, true, irr::video::SColor(0,100,100,100) );
-			smgr->drawAll();
-			device->getGUIEnvironment()->drawAll();
-			driver->endScene();
-		}
-		return true;
-	}
-};
 
 class CMutex
 {
@@ -581,71 +494,4 @@ public:
 			_aligned_free(ptr);
 		}
 	};*/
-};
-#ifdef DESTRUCTION
-class APEX : protected CMutex
-{
-private:
-	//descriptor for APEX SDK
-	NxApexSDKDesc apexDesc;
-	physx::apex::NxApexSDK* mAPEX;
-	physx::apex::NxApexRenderDebug* deb;
-	physx::PxMat44 pose;
-	physx::PxErrorCallback* pxError;
-	CMutex* mutex;
-public:
-	APEX()
-	{
-		pxError = &mutex->FoundationCallback()->getErrorCallback();
-		apexDesc.physXSDK = CMutex::mPhysX;
-		apexDesc.cooking = CMutex::mCooking;
-		apexDesc.outputStream = pxError;
-		apexDesc.renderResourceManager = NULL;//todo ?
-		//apex custom named resource handler
-		apexDesc.resourceCallback = NULL;
-		//materials used by APEX
-		apexDesc.wireframeMaterial = 0; //leave it to default values
-		apexDesc.solidShadedMaterial = 0;//leave to defaults initialised by string with location
-		mAPEX = NxCreateApexSDK( apexDesc );
-		PX_ASSERT(mAPEX);
-		deb = mAPEX->createApexRenderDebug(false,true);
-		pose = physx::PxMat44::createIdentity();
-		if( deb )
-		{
-			deb->beginDrawGroup(pose);
-			deb->drawGrid(false,40);
-			deb->endDrawGroup();
-		}
-	}
-	//APEX needs a memory allocator and error stream. By default it uses the PhysX one
-};
-#endif
-
-class CVehicle : public CMutex
-{
-private:
-	physx::PxVehicleWheelsSimData* m_wheelSimData;
-	physx::PxVehicleDriveSimData4W m_driveData;
-	physx::PxVehicleChassisData m_chassisData;
-public:
-	CVehicle()
-	{
-		//required to initiate the vehicle SDK - yes vehicles have their own SDK -_-
-		PxInitVehicleSDK( *CMutex::mPhysX );
-	}
-	~CVehicle() {PxCloseVehicleSDK();}
-
-	virtual void createVehicle4WSimulationData( 
-		const PxF32 chassisMass,
-		physx::PxConvexMesh* chassisConvexMesh,
-		const PxF32 wheelMass,
-		physx::PxConvexMesh** wheelConvexMeshes,
-		const PxVec3* wheelCentreOffsets,
-		physx::PxVehicleWheelsSimData& wheelsData,
-		physx::PxVehicleDriveSimData4W& driveData,
-		physx::PxVehicleChassisData& chassisData )
-	{
-		//extract the chassis AABB dimensions from the chassis convex mesh
-		const PxVec3 chassisDims;
-	}
 };
