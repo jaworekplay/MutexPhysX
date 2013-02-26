@@ -11,6 +11,7 @@ class CIrrlichtBase
 {
 private:
 	static const unsigned __int16 MAX = 11U; // 11 elements for the body of the character
+	static const unsigned int SPH = 100;
 	ICustomEventReceiver* rec;
 	irr::core::dimension2d<irr::u32> size;
 	irr::video::E_DRIVER_TYPE driverType;
@@ -27,6 +28,7 @@ private:
 	std::vector<physx::PxRigidStatic*> m_vPxObj;
 	CMutex* mute;
 	CPhysXNode* physicsActor[MAX];
+	CPhysXNode* m_Spheres[SPH];
 	enum eBodyParts
 	{
 		eHEAD = 0,
@@ -59,10 +61,11 @@ public:
 		m_pos = m_rot = irr::core::vector3df(0,0,0);
 		m_scale = irr::core::vector3df(1,1,1);
 		rec->startEventProcess();
-		addSpheres();
+		
 		addPhysXObject();
 		addPyramid();
 		addChassis();
+		addSpheres();
 		addCamera();
 		//this needs to wrapped so we can use it inside the class without use of the id statement
 	}
@@ -91,9 +94,9 @@ public:
 		
 		for( int i = 0; i < MAX; i++ )
 		{
-			physicsActor[i] = new CPhysXNode( mute->CreateActor(pos,2.f) , smgr->addSphereSceneNode(2.f) ); // Physics Actor instance: PhysX actor, irrlicht Sphere Scene Node
-			physicsActor[i]->getIrrNode()->setMaterialFlag( irr::video::EMF_LIGHTING, false);
-			physicsActor[i]->getIrrNode()->setMaterialTexture(0, driver->getTexture("D:/media/wall.bmp") );
+			m_Spheres[i] = new CPhysXNode( mute->CreateActor(eAC_Sphere,pos),smgr );
+			m_Spheres[i]->getIrrNode()->setMaterialFlag( irr::video::EMF_LIGHTING, false);
+			m_Spheres[i]->getIrrNode()->setMaterialTexture(0, driver->getTexture("D:/media/wall.bmp") );
 			pos.x = rand() % 100;
 			pos.z = rand() % 100;
 		}
@@ -120,6 +123,7 @@ public:
 	{
 		CCustomNode* pyramid = new CCustomNode(smgr->getRootSceneNode(), smgr,4,-1);
 		pyramid->setDebugDataVisible( scene::E_DEBUG_SCENE_TYPE::EDS_FULL );
+		pyramid->setMaterialFlag(video::EMF_LIGHTING, false);
 		return true;
 	}
 	virtual bool addCamera()
@@ -138,7 +142,7 @@ public:
 	virtual bool addPlayerCharacter()
 	{
 		//let's start with head
-		physicsActor[eHEAD] = new CPhysXNode(mute->CreateActor(),smgr->addSphereSceneNode(5.f));
+		physicsActor[eHEAD] = new CPhysXNode(mute->CreateActor(eAC_Sphere), smgr);
 		return true;
 	}
 	virtual bool render()
@@ -168,7 +172,7 @@ public:
 				return true;
 			}
 			for(int i = 0; i < MAX; ++i)
-				physicsActor[i]->updatePos();
+				m_Spheres[i]->updatePos();
 		}
 		return true;
 	}

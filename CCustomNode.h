@@ -24,7 +24,6 @@ public:
 		material.Wireframe = false;
 		material.Lighting  = false;
 
-
 		Vertices[0] = video::S3DVertex(0,0,10, 1,1,0,
             video::SColor(255,0,255,255), 0, 1);
 		Vertices[1] = video::S3DVertex(10,0,-10, 1,0,0,
@@ -46,7 +45,7 @@ public:
 	}
 	virtual void render()
 	{
-		u16 indices[] = {   0,2,3, 2,1,3, 1,0,3, 2,0,1  };
+		u16 indices[] = {  0,2,3, 2,1,3, 1,0,3, 2,0,1  };
 		video::IVideoDriver* driver = SceneManager->getVideoDriver();
 
 		driver->setMaterial(material);

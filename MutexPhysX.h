@@ -28,6 +28,16 @@
 
 using namespace physx;
 
+enum E_ACTOR_CREATION
+{
+	eAC_Sphere = 0,
+	eAC_Capsule,
+	eAC_Box,
+	eAC_Convex,
+	eAC_COUNT //do not use!
+};
+
+
 class CMutex
 {
 protected:
@@ -57,10 +67,10 @@ protected:
 	physx::PxMaterial*				mMaterial;
 	//------------------------------PxActors
 		//--------------------SPHERE-----------------
-		physx::PxRigidDynamic*			mSphereActor;
-		physx::PxShape*					mSphereShape;
+		physx::PxRigidDynamic*			mActor;
+		physx::PxShape*					mShape;
 		/////////////////////////////////////////////
-
+		E_ACTOR_CREATION				mCreation;
 		//--------------------GENERIC ACTOR - CAN BE ANYTHING
 
 		/////////////////////////////////////////////////////
@@ -206,29 +216,70 @@ public:
 	}
 	virtual physx::PxRigidDynamic* shootABullet()
 	{
-		return CMutex::mSphereActor;
+		return CMutex::mActor;
 	}
 	//Description
 	//This function will create an actor
 	//either static or rigid: kinematic or ragdoll
+	//Parameter 1 is enumeration of shapes available, DO NOT USE eAC_COUNT, Parameter 2 is position where new actor should be spawned.
 	//TO DO
-	virtual physx::PxRigidDynamic* CreateActor( physx::PxVec3& position = PxVec3(0.f,100.f,0.f),
-												physx::PxReal sphereRadius = PxReal(10.f), 
-												physx::PxVec3& velocity = PxVec3(0.f, 0.f,0.f) )
+	virtual physx::PxRigidDynamic* CreateActor( E_ACTOR_CREATION Creation, PxVec3& position = PxVec3(0,0,0))
 	{
+		mCreation = Creation;
 		mPhysX->getMaterials( &mMaterial, 1 );
 		density = PxReal(150.f);
-		mSphereActor = mPhysX->createRigidDynamic( physx::PxTransform( position ) );
-		mSphereShape = mSphereActor->createShape( physx::PxSphereGeometry( sphereRadius ), *mMaterial );
-		mSphereActor->setMass( density );
-		physx::PxRigidBodyExt::updateMassAndInertia( *mSphereActor, density );
+		mActor = mPhysX->createRigidDynamic( physx::PxTransform( position ) );
+		PxVec3 velocity(0,10,0);
+		PxReal sphereRadius(5.f);
+		switch( mCreation )
+		{
+		case eAC_Sphere:
+			mShape = mActor->createShape( physx::PxSphereGeometry( sphereRadius ), *mMaterial );
+			mActor->userData = (void*)mCreation;
+			break;
+		case eAC_Box:
+			mShape = mActor->createShape(physx::PxBoxGeometry(5.f,5.f,5.f),*mMaterial );
+			mActor->userData = (void*)mCreation;
+			break;
+		case eAC_Capsule:
+			mShape = mActor->createShape(physx::PxCapsuleGeometry(5.f,2.5f), *mMaterial );
+			mActor->userData = (void*)mCreation;
+			break;
+		case eAC_Convex :
+			return CreatePyramid();
+			mActor->userData = (void*)mCreation;
+			break;
+		default:
+			printf("Unknown creation parameter, please specify a valid name\n");
+			break;
+		}
+		mActor->setMass( density );
+		physx::PxRigidBodyExt::updateMassAndInertia( *mActor, density );
 		//specifying initial linear velocity
-		mSphereActor->setLinearVelocity( velocity );
+		mActor->setLinearVelocity( velocity );
 		//add the actor to the scene
-		mScene->addActor( *mSphereActor );
+		mScene->addActor( *mActor );
 		printf("Creation of the actor was a success!\n");
-		return mSphereActor;
+		return mActor;
+		
 	}
+	//virtual physx::PxRigidDynamic* CreateActor( physx::PxVec3& position = PxVec3(0.f,100.f,0.f),
+	//											physx::PxReal sphereRadius = PxReal(10.f), 
+	//											physx::PxVec3& velocity = PxVec3(0.f, 0.f,0.f) )
+	//{
+	//	mPhysX->getMaterials( &mMaterial, 1 );
+	//	density = PxReal(150.f);
+	//	mSphereActor = mPhysX->createRigidDynamic( physx::PxTransform( position ) );
+	//	mSphereShape = mSphereActor->createShape( physx::PxSphereGeometry( sphereRadius ), *mMaterial );
+	//	mSphereActor->setMass( density );
+	//	physx::PxRigidBodyExt::updateMassAndInertia( *mSphereActor, density );
+	//	//specifying initial linear velocity
+	//	mSphereActor->setLinearVelocity( velocity );
+	//	//add the actor to the scene
+	//	mScene->addActor( *mSphereActor );
+	//	printf("Creation of the actor was a success!\n");
+	//	return mSphereActor;
+	//}
 	//Description
 	//This is a trial to pass the value of the scene
 	//to create an actor outside the base class
@@ -238,7 +289,7 @@ public:
 	//This function should translate rotations from the PhysX quartternion and matrix to irrlicht vector one
 	virtual void Rotate() //
 	{
-		PxMat33 mat = PxMat33::PxMat33( mSphereActor->getGlobalPose().q );
+		PxMat33 mat = PxMat33::PxMat33( mActor->getGlobalPose().q );
 		irr::core::matrix4 irrM;
 		irr::f32 fM[16];
 		fM[0] = mat.column0.x;
@@ -257,11 +308,11 @@ public:
 
 	const int CUDA(){if(mCudaContextManager) return 1; return 0;}
 
-	virtual void moveLeft(){mSphereActor->addForce( PxVec3(-10.f,0.f,0.f), physx::PxForceMode::eIMPULSE );}
-	virtual void moveRight(){mSphereActor->addForce( PxVec3(10.f,0.f,0.f), physx::PxForceMode::eIMPULSE );}
-	virtual void Jump(){mSphereActor->addForce( PxVec3(0.f,10.f,0.f), physx::PxForceMode::eACCELERATION);}
-	virtual void moveIn(){mSphereActor->addForce( PxVec3(0.f,0.f,-10.f), physx::PxForceMode::eIMPULSE );}
-	virtual void moveOut(){mSphereActor->addForce( PxVec3(0.f,0.f,10.f), physx::PxForceMode::eIMPULSE );}
+	virtual void moveLeft(){mActor->addForce( PxVec3(-10.f,0.f,0.f), physx::PxForceMode::eIMPULSE );}
+	virtual void moveRight(){mActor->addForce( PxVec3(10.f,0.f,0.f), physx::PxForceMode::eIMPULSE );}
+	virtual void Jump(){mActor->addForce( PxVec3(0.f,10.f,0.f), physx::PxForceMode::eACCELERATION);}
+	virtual void moveIn(){mActor->addForce( PxVec3(0.f,0.f,-10.f), physx::PxForceMode::eIMPULSE );}
+	virtual void moveOut(){mActor->addForce( PxVec3(0.f,0.f,10.f), physx::PxForceMode::eIMPULSE );}
 
 	virtual void joinActors(physx::PxRigidActor *actor1,physx::PxRigidDynamic* actor2) // Leo 
 	{
@@ -510,3 +561,4 @@ public:
 		}
 	};*/
 };
+

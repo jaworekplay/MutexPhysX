@@ -173,7 +173,7 @@ bool ICustomEventReceiver::OnEvent( const irr::SEvent& event )
 						m_EKeys[event.KeyInput.Key] = Button_DOWN; //set the key to pressed value
 					else
 						m_EKeys[event.KeyInput.Key] = Button_PRESSED;
-					printf("Key pressed\n");
+					//printf("Key pressed\n");
 				break;
 				}
 				else
@@ -183,7 +183,7 @@ bool ICustomEventReceiver::OnEvent( const irr::SEvent& event )
 						m_EKeys[event.KeyInput.Key] = Button_UP; //set the key to released value
 					else
 						m_EKeys[event.KeyInput.Key] = Button_RELEASED;
-					printf("Key released\n");
+					//printf("Key released\n");
 					break;
 				}
 			}

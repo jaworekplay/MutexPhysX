@@ -19,10 +19,25 @@ private:
 	CCustomNode* irrCustom;
 public:
 	/*Constructor*/
-	CPhysXNode( physx::PxRigidDynamic* physicsActor, irr::scene::ISceneNode* irrlichtActor )
+	CPhysXNode( physx::PxRigidDynamic* physicsActor , scene::ISceneManager* smgr)
 	{
+		int shape;
 		pxActor = physicsActor;
-		irrActor = irrlichtActor;
+		shape = (int)pxActor->userData;
+		switch( shape )
+		{
+		case eAC_Sphere:
+			irrActor = smgr->addSphereSceneNode();
+			break;
+		case eAC_Box:
+			irrActor = smgr->addCubeSceneNode(5.f);
+			break;
+		case eAC_Capsule:
+			break;
+		case eAC_Convex:
+			irrCustom = new CCustomNode(smgr->getRootSceneNode(),smgr,4,-1);
+			break;
+		}
 	}
 	/*For now we won't use the CCustomNode as it is still unstable to use !*/
 	CPhysXNode( physx::PxRigidDynamic* physicsActor, CCustomNode* customNode )
