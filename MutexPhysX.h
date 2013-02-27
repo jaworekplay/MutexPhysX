@@ -223,13 +223,13 @@ public:
 	//either static or rigid: kinematic or ragdoll
 	//Parameter 1 is enumeration of shapes available, DO NOT USE eAC_COUNT, Parameter 2 is position where new actor should be spawned.
 	//TO DO
-	virtual physx::PxRigidDynamic* CreateActor( E_ACTOR_CREATION Creation, PxVec3& position = PxVec3(0,0,0))
+	virtual physx::PxRigidDynamic* CreateActor( E_ACTOR_CREATION Creation, PxVec3& position)
 	{
 		mCreation = Creation;
 		mPhysX->getMaterials( &mMaterial, 1 );
-		density = PxReal(150.f);
+		density = PxReal(50.f);
 		mActor = mPhysX->createRigidDynamic( physx::PxTransform( position ) );
-		PxVec3 velocity(0,10,0);
+		PxVec3 velocity(0,0,0);
 		PxReal sphereRadius(5.f);
 		switch( mCreation )
 		{
@@ -308,11 +308,11 @@ public:
 
 	const int CUDA(){if(mCudaContextManager) return 1; return 0;}
 
-	virtual void moveLeft(){mActor->addForce( PxVec3(-10.f,0.f,0.f), physx::PxForceMode::eIMPULSE );}
-	virtual void moveRight(){mActor->addForce( PxVec3(10.f,0.f,0.f), physx::PxForceMode::eIMPULSE );}
+	virtual void moveLeft(){mActor->addForce( PxVec3(-100.f,0.f,0.f), physx::PxForceMode::eIMPULSE );}
+	virtual void moveRight(){mActor->addForce( PxVec3(100.f,0.f,0.f), physx::PxForceMode::eIMPULSE );}
 	virtual void Jump(){mActor->addForce( PxVec3(0.f,10.f,0.f), physx::PxForceMode::eACCELERATION);}
-	virtual void moveIn(){mActor->addForce( PxVec3(0.f,0.f,-10.f), physx::PxForceMode::eIMPULSE );}
-	virtual void moveOut(){mActor->addForce( PxVec3(0.f,0.f,10.f), physx::PxForceMode::eIMPULSE );}
+	virtual void moveIn(){mActor->addForce( PxVec3(0.f,0.f,-100.f), physx::PxForceMode::eIMPULSE );}
+	virtual void moveForward(PxVec3 direction){mActor->addForce( direction, physx::PxForceMode::eIMPULSE );}
 
 	virtual void joinActors(physx::PxRigidActor *actor1,physx::PxRigidDynamic* actor2) // Leo 
 	{

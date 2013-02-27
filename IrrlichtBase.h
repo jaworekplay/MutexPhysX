@@ -29,6 +29,10 @@ private:
 	CMutex* mute;
 	CPhysXNode* physicsActor[MAX];
 	CPhysXNode* m_Spheres[SPH];
+	CPhysXNode* m_Walls[4];
+private:
+	irr::scene::ICameraSceneNode* cam;
+	PxVec3 CamPosPhysX;
 	enum eBodyParts
 	{
 		eHEAD = 0,
@@ -67,6 +71,7 @@ public:
 		addChassis();
 		addSpheres();
 		addCamera();
+		addPyramid(vector3df(0,40,0), vector3df(0,0,180));
 		//this needs to wrapped so we can use it inside the class without use of the id statement
 	}
 	~CIrrlichtBase()
@@ -117,21 +122,30 @@ public:
 		irr::scene::IMeshSceneNode* RacerChassis = smgr->addMeshSceneNode( racerLSChassis );
 		RacerChassis->setMaterialFlag( irr::video::EMF_LIGHTING, false);
 		RacerChassis->setPosition( irr::core::vector3df(0.f,50.f,0.f));
+		RacerChassis->setScale(vector3df(10.f));
 		return true;
 	}
-	virtual bool addPyramid()
+	//Description
+	//If you want to add pyramid just call this method
+	//Parameter 1 = position
+	//Parameter 2 = rotation
+	//When placed in a smart way can create wall or a column
+	//JaworekP1ay ^_^
+	virtual bool addPyramid(vector3df& position = vector3df(0), vector3df& rotation = vector3df(0))
 	{
 		CCustomNode* pyramid = new CCustomNode(smgr->getRootSceneNode(), smgr,4,-1);
 		pyramid->setDebugDataVisible( scene::E_DEBUG_SCENE_TYPE::EDS_FULL );
 		pyramid->setMaterialFlag(video::EMF_LIGHTING, false);
+		pyramid->setPosition( position );
+		pyramid->setRotation(rotation );
 		return true;
 	}
 	virtual bool addCamera()
 	{
-		irr::scene::ICameraSceneNode* cam;
-		cam = smgr->addCameraSceneNodeFPS();
+		cam = smgr->addCameraSceneNodeFPS(smgr->getRootSceneNode(), 100.f, 0.2f);
 		cam->setPosition( irr::core::vector3df( 0.f, 70.f, -50.f ) );
 		cam->setFarValue( 10000.f );
+		cam->setTarget(m_Spheres[MAX - 1]->getIrrNode()->getPosition());
 		return true;
 	}
 	virtual bool addPhysXObject()
@@ -142,7 +156,7 @@ public:
 	virtual bool addPlayerCharacter()
 	{
 		//let's start with head
-		physicsActor[eHEAD] = new CPhysXNode(mute->CreateActor(eAC_Sphere), smgr);
+		physicsActor[eHEAD] = new CPhysXNode(mute->CreateActor(eAC_Sphere, PxVec3(0)), smgr);
 		return true;
 	}
 	virtual bool render()
@@ -155,13 +169,16 @@ public:
 			smgr->drawAll();
 			device->getGUIEnvironment()->drawAll();
 			driver->endScene();
-
+			CamPosPhysX.x = cam->getTarget().X;
+			CamPosPhysX.y = cam->getTarget().Y;
+			CamPosPhysX.z = cam->getTarget().Z;
+			cam->setTarget( m_Spheres[MAX - 1]->getIrrNode()->getPosition() );
 			if( rec->isKeyDown( irr::KEY_KEY_A ) )
 				mute->moveLeft();
 			if( rec->isKeyDown( irr::KEY_KEY_D ) )
 				mute->moveRight();
 			if( rec->isKeyDown( irr::KEY_KEY_W ) )
-				mute->moveOut();
+				mute->moveForward(CamPosPhysX.getNormalized());
 			if( rec->isKeyDown( irr::KEY_KEY_S ) )
 				mute->moveIn();
 			if( rec->isKeyDown( irr::KEY_SPACE ) )
@@ -171,6 +188,11 @@ public:
 				device->drop();
 				return true;
 			}
+			vector3df newPos;
+			newPos.X = m_Spheres[MAX - 1]->getIrrNode()->getPosition().X;
+			newPos.Y = m_Spheres[MAX - 1]->getIrrNode()->getPosition().Y;
+			newPos.Z = m_Spheres[MAX - 1]->getIrrNode()->getPosition().Z - 50.f;
+			cam->setPosition(newPos);
 			for(int i = 0; i < MAX; ++i)
 				m_Spheres[i]->updatePos();
 		}
