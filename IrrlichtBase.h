@@ -11,14 +11,14 @@ class CIrrlichtBase
 {
 private:
 	static const unsigned __int16 MAX = 11U; // 11 elements for the body of the character
-	static const unsigned int SPH = 100;
+	static const unsigned int SPH = 2;
 	ICustomEventReceiver* rec;
 	irr::core::dimension2d<irr::u32> size;
 	irr::video::E_DRIVER_TYPE driverType;
 	irr::IrrlichtDevice* device;
-	irr::scene::IMesh* mesh;
 	irr::scene::ISceneNode* m_rootNode;
 	irr::scene::ISceneNode* temp;
+	irr::scene::ISceneCollisionManager* cmgr;
 	irr::core::vector3df m_pos;
 	irr::core::vector3df m_rot;
 	irr::core::vector3df m_scale;
@@ -26,13 +26,17 @@ private:
 	std::vector<physx::PxActor*> m_vPxNPC;
 	std::vector<irr::scene::ISceneNode*> m_vObj;
 	std::vector<physx::PxRigidStatic*> m_vPxObj;
+private:
 	CMutex* mute;
 	CPhysXNode* physicsActor[MAX];
 	CPhysXNode* m_Spheres[SPH];
 	CPhysXNode* m_Walls[4];
 private:
+	io::IFileSystem* files;
+private:
 	irr::scene::ICameraSceneNode* cam;
 	PxVec3 CamPosPhysX;
+	scene::IVolumeLightSceneNode* m_light;
 	enum eBodyParts
 	{
 		eHEAD = 0,
@@ -64,8 +68,14 @@ public:
 		m_rootNode = smgr->getRootSceneNode();
 		m_pos = m_rot = irr::core::vector3df(0,0,0);
 		m_scale = irr::core::vector3df(1,1,1);
+		cmgr = smgr->getSceneCollisionManager();
 		rec->startEventProcess();
 		
+		files = device->getFileSystem();
+		files->addFileArchive("D:\\media\\");
+
+		addScene();
+		addObject(100, vector3df(0,10.f,10.f));
 		addPhysXObject();
 		addPyramid();
 		addChassis();
@@ -80,28 +90,32 @@ public:
 		device->drop();
 	}
 public:
+	virtual bool addScene()
+	{
+		smgr->loadScene("Egypt V6.irr");
+		m_light = smgr->addVolumeLightSceneNode();
+		m_light->setScale(core::vector3df(46.f,45.f,46.f));
+		m_light->getMaterial(0).setTexture(0, driver->getTexture("lightFalloff.png"));
+		m_light->setPosition( vector3df(0,1000,0) );
+		return true;
+	}
 	virtual bool addNPC(){return true;}
 	virtual bool addPhysXNPC(){return true;}
-	virtual bool addObject(irr::io::path& fileName, char* ID, irr::core::vector3df& Position)
+	virtual bool addObject(int ID, irr::core::vector3df& Position)
 	{
-		int id = (int)ID;
-		mesh = smgr->getMesh(fileName);
-		if( Position.equals( m_pos ) )
-			temp = smgr->addMeshSceneNode(mesh,m_rootNode,id,m_pos,m_rot,m_scale);
-		else
-			smgr->addMeshSceneNode(mesh,m_rootNode,id,Position,m_rot,m_scale);
-		m_vObj.push_back(temp);
+		scene::IAnimatedMesh* mesh = smgr->getMesh("Pyramid.DAE");
+		scene::IAnimatedMeshSceneNode* pyr = smgr->addAnimatedMeshSceneNode( mesh );
 		return true;
 	}
 	virtual bool addSpheres()
 	{
 		PxVec3 pos(PxVec3(0.f,0.f,0.f));
 		
-		for( int i = 0; i < MAX; i++ )
+		for( int i = 0; i < SPH; ++i )
 		{
 			m_Spheres[i] = new CPhysXNode( mute->CreateActor(eAC_Sphere,pos),smgr );
 			m_Spheres[i]->getIrrNode()->setMaterialFlag( irr::video::EMF_LIGHTING, false);
-			m_Spheres[i]->getIrrNode()->setMaterialTexture(0, driver->getTexture("D:/media/wall.bmp") );
+			m_Spheres[i]->getIrrNode()->setMaterialTexture(0, driver->getTexture("wall.bmp") );
 			pos.x = rand() % 100;
 			pos.z = rand() % 100;
 		}
@@ -118,7 +132,7 @@ public:
 	}
 	virtual bool addChassis()
 	{
-		irr::scene::IMesh* racerLSChassis = smgr->getMesh("D:/media/vehicle/Racer-LS-chassis.mesh");
+		irr::scene::IMesh* racerLSChassis = smgr->getMesh("Racer-LS-chassis.mesh");
 		irr::scene::IMeshSceneNode* RacerChassis = smgr->addMeshSceneNode( racerLSChassis );
 		RacerChassis->setMaterialFlag( irr::video::EMF_LIGHTING, false);
 		RacerChassis->setPosition( irr::core::vector3df(0.f,50.f,0.f));
@@ -145,7 +159,7 @@ public:
 		cam = smgr->addCameraSceneNodeFPS(smgr->getRootSceneNode(), 100.f, 0.2f);
 		cam->setPosition( irr::core::vector3df( 0.f, 70.f, -50.f ) );
 		cam->setFarValue( 10000.f );
-		cam->setTarget(m_Spheres[MAX - 1]->getIrrNode()->getPosition());
+		//cam->setTarget(m_Spheres[SPH - 1]->getIrrNode()->getPosition());
 		return true;
 	}
 	virtual bool addPhysXObject()
@@ -164,21 +178,18 @@ public:
 		
 		while(device->run())
 		{
-			mute->advance(0.005f);
+			mute->advance(0.5f);
 			driver->beginScene( true, true, irr::video::SColor(0,100,100,100) );
 			smgr->drawAll();
 			device->getGUIEnvironment()->drawAll();
 			driver->endScene();
-			CamPosPhysX.x = cam->getTarget().X;
-			CamPosPhysX.y = cam->getTarget().Y;
-			CamPosPhysX.z = cam->getTarget().Z;
-			cam->setTarget( m_Spheres[MAX - 1]->getIrrNode()->getPosition() );
+			//cam->setTarget( m_Spheres[SPH - 1]->getIrrNode()->getPosition() );
 			if( rec->isKeyDown( irr::KEY_KEY_A ) )
 				mute->moveLeft();
 			if( rec->isKeyDown( irr::KEY_KEY_D ) )
 				mute->moveRight();
 			if( rec->isKeyDown( irr::KEY_KEY_W ) )
-				mute->moveForward(CamPosPhysX.getNormalized());
+				mute->moveForward();
 			if( rec->isKeyDown( irr::KEY_KEY_S ) )
 				mute->moveIn();
 			if( rec->isKeyDown( irr::KEY_SPACE ) )
@@ -189,11 +200,11 @@ public:
 				return true;
 			}
 			vector3df newPos;
-			newPos.X = m_Spheres[MAX - 1]->getIrrNode()->getPosition().X;
-			newPos.Y = m_Spheres[MAX - 1]->getIrrNode()->getPosition().Y;
-			newPos.Z = m_Spheres[MAX - 1]->getIrrNode()->getPosition().Z - 50.f;
-			cam->setPosition(newPos);
-			for(int i = 0; i < MAX; ++i)
+			/*newPos.X = m_Spheres[SPH - 1]->getIrrNode()->getPosition().X;
+			newPos.Y = m_Spheres[SPH - 1]->getIrrNode()->getPosition().Y + 50.f;
+			newPos.Z = m_Spheres[SPH - 1]->getIrrNode()->getPosition().Z - 50.f;
+			cam->setPosition(newPos);*/
+			for(int i = 0; i < SPH; ++i)
 				m_Spheres[i]->updatePos();
 		}
 		return true;

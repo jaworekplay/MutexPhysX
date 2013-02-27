@@ -185,7 +185,7 @@ public:
 		//jaworekplay
 		//EDIT:When we change the "1" in PxQuat(1,x) the force of polarity of gravity is being changed.
 		//EDIT:changed "1" in PxTransform(1,2,3) to 10 from 0
-		pose = PxTransform(PxVec3(0.f,0.f,0.f), PxQuat(PxHalfPi, PxVec3(0.f,0.f,1.f) ) );
+		pose = PxTransform(PxVec3(0.f,-130.f,0.f), PxQuat(PxHalfPi, PxVec3(0.f,0.f,1.f) ) );
 		plane = mPhysX->createRigidStatic(pose);
 		plane->createShape( PxPlaneGeometry(), *mMaterial );
 		mScene->addActor( *plane );
@@ -312,7 +312,7 @@ public:
 	virtual void moveRight(){mActor->addForce( PxVec3(100.f,0.f,0.f), physx::PxForceMode::eIMPULSE );}
 	virtual void Jump(){mActor->addForce( PxVec3(0.f,10.f,0.f), physx::PxForceMode::eACCELERATION);}
 	virtual void moveIn(){mActor->addForce( PxVec3(0.f,0.f,-100.f), physx::PxForceMode::eIMPULSE );}
-	virtual void moveForward(PxVec3 direction){mActor->addForce( direction, physx::PxForceMode::eIMPULSE );}
+	virtual void moveForward(){mActor->addForce( PxVec3(0.f,0.f,100.f), physx::PxForceMode::eIMPULSE );}
 
 	virtual void joinActors(physx::PxRigidActor *actor1,physx::PxRigidDynamic* actor2) // Leo 
 	{
