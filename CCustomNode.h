@@ -22,21 +22,25 @@ public:
 		s32 id = -1)
 		: scene::ISceneNode( parent,smgr,id), numberOfVerticies(numOfVertices)
 	{
-		material.Wireframe = true;
+		material.Wireframe = false;
 		material.Lighting  = false;
+		material.BackfaceCulling = true;
+		material.FrontfaceCulling = false;
+		material.Shininess = 20.f;
+		material.FogEnable = true;
 
-		vector3df I(0,0,20),II(-20,0,0),III(0,0,-20),IV(20,0,0),V(0,30,0);
-		vector3df In(I),IIn(II),IIIn(III),IVn(IV),Vn(V);
-		In.normalize();IIn.normalize();IIIn.normalize();IVn.normalize();Vn.normalize();
+		//vector3df I(0,0,20),II(-20,0,0),III(0,0,-20),IV(20,0,0),V(0,30,0);
+		//vector3df In(I),IIn(II),IIIn(III),IVn(IV),Vn(V);
+		//In.normalize();IIn.normalize();IIIn.normalize();IVn.normalize();Vn.normalize();
 
-		Vertices[0] = video::S3DVertex(0,0,10, 1,1,0,
-                video::SColor(255,0,255,255), 0, 1);
-        Vertices[1] = video::S3DVertex(10,0,-10, 1,0,0,
-                video::SColor(255,255,0,255), 1, 1);
-        Vertices[2] = video::S3DVertex(0,20,0, 0,1,1,
-                video::SColor(255,255,255,0), 1, 0);
-        Vertices[3] = video::S3DVertex(-10,0,-10, 0,0,1,
-                video::SColor(255,0,255,0), 0, 0);
+		Vertices[0] = video::S3DVertex(0,0,10, 1,1,0,//I
+                video::SColor(255,255,255,255), 0, 1);
+        Vertices[1] = video::S3DVertex(10,0,0, 1,0,0,//II
+                video::SColor(255,255,255,255), 1, 1);
+        Vertices[2] = video::S3DVertex(0,7,0, 0,1,1,//height IV
+                video::SColor(255,255,255,255), 1, 0);
+        Vertices[3] = video::S3DVertex(0,0,-10, 0,0,1,//III
+                video::SColor(255,255,255,255), 0, 0);
 
 		box.reset(Vertices[0].Pos);
 		for( int i = 0; i < numberOfVerticies; ++i )
@@ -49,7 +53,7 @@ public:
 		ISceneNode::OnRegisterSceneNode();
 	}
 	virtual void render()
-	{//						 I     II     III    IV      V
+	{//						 I     II     III    IV   
 		u16 indices[] = {  0,2,3, 2,1,3, 1,0,3, 2,0,1  };
 		video::IVideoDriver* driver = SceneManager->getVideoDriver();
 

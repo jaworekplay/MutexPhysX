@@ -37,6 +37,10 @@ public:
 		case eAC_Convex:
 			irrCustom = new CCustomNode(smgr->getRootSceneNode(),smgr,4,-1);
 			break;
+			//leo
+		case eAC_Face:
+			irrActor = smgr->addBillboardSceneNode();
+			break;
 		}
 	}
 	/*For now we won't use the CCustomNode as it is still unstable to use !*/
