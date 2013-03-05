@@ -78,7 +78,7 @@ public:
 		files->addFolderFileArchive("D:\\media");
 		for( int i = 0; i < SPH; ++i )
 			m_Spheres[i] = NULL;
-		Prototype( vector3df(1) );
+		//Prototype( vector3df(1) );
 		addScene();
 		addObject(100, vector3df(0,10.f,10.f));
 		addPhysXObject();
@@ -110,7 +110,7 @@ public:
 	virtual bool addPhysXNPC(){return true;}
 	virtual void Prototype(vector3df scale)
 	{
-		scene::IAnimatedMesh* mesh = smgr->getMesh("D:\\media\\Pyramid.DAE");
+		scene::IAnimatedMesh* mesh = smgr->getMesh("D:\\media\\cube.obj");
 		s32 meshBufferCount = mesh->getMesh(0)->getMeshBufferCount();
 		core::array<PxVec3> vertices;
 		core::array<PxU32> indices;
@@ -118,7 +118,7 @@ public:
 		PxU32 tempIndexCount = 0;
 		for( int i = 0; i < meshBufferCount; ++i)
 		{
-			scene::IMeshBuffer* mb = mesh->getMesh(0)->getMeshBuffer(0);
+			scene::IMeshBuffer* mb = mesh->getMesh(0)->getMeshBuffer(i);
 			s32 numVertices = mb->getVertexCount();
 			s32 numIndices = mb->getIndexCount();
 
@@ -138,9 +138,9 @@ public:
 		mute->mTrialMeshDesc->points.data = vertices.const_pointer();
 		mute->mTrialMeshDesc->triangles.data = indices.const_pointer();
 		mute->mTrialMeshDesc->flags = PxMeshFlags::PxFlags(0);
-		cout << endl << mute->mTrialMeshDesc->points.count << "Vertices.\n";
-		cout << indices.size() << "indices.\n";
-		cout << mute->mTrialMeshDesc->triangles.count << "triangles.\n";
+		cout << endl << mute->mTrialMeshDesc->points.count << " Vertices.\n";
+		cout << indices.size() << " indices.\n";
+		cout << mute->mTrialMeshDesc->triangles.count << " triangles.\n";
 
 		PxToolkit::MemoryOutputStream buf;
 		mute->getCooking().cookTriangleMesh( *mute->mTrialMeshDesc, buf);
@@ -149,7 +149,8 @@ public:
 		mute->mTrialGeom = new PxTriangleMeshGeometry();
 		mute->mTrialGeom->triangleMesh = mute->mTrialMesh;
 		PxRigidDynamic* ac = mute->getPhysX().createRigidDynamic( PxTransform() );
-		PxShape* sh = ac->createShape( *mute->mTrialGeom, mute->getMaterial() );
+		PxShape* sh = ac->createShape( *mute->mTrialGeom, mute->getMaterial(), PxTransform( PxVec3(0,10,0) ) );
+		mute->Scene().addActor( *ac );
 	}
 	virtual bool addObject(int ID, irr::core::vector3df& Position)
 	{
