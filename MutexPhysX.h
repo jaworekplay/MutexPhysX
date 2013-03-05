@@ -38,7 +38,7 @@ enum E_ACTOR_CREATION
 	eAC_COUNT //do not use!
 };
 
-using namespace std;
+
 class CMutex
 {
 protected:
@@ -73,11 +73,7 @@ protected:
 		/////////////////////////////////////////////
 		E_ACTOR_CREATION				mCreation;
 		//--------------------GENERIC ACTOR - CAN BE ANYTHING
-public:
-		physx::PxTriangleMesh*		mTrialMesh;
-		physx::PxTriangleMeshDesc*  mTrialMeshDesc;
-		physx::PxTriangleMeshGeometry* mTrialGeom;
-protected:
+
 		/////////////////////////////////////////////////////
 	std::vector<physx::PxRigidActor*> mvActors;
 	std::vector<physx::PxRigidActor*>::iterator iterator;
@@ -127,34 +123,34 @@ public:
 	{
 		//creating base PxFoundation essential for top-level PhysX
 		if( !mFoundation )
-			cout << "Foundation creation failed!\n";
+			printf("Foundation creation failed!\n");
 		else
-			cout << "Foundation succesfull\n";
+			printf("Foundation succesfull\n");
 		//top level PhysX
 		recordMemoryAllocations = true;
 		mProfileZoneManager = &physx::PxProfileZoneManager::createProfileZoneManager( mFoundation );
 		if( !mProfileZoneManager )
-			cout << "Creation of Zone Manager has failed\n";
+			printf("Creation of Zone Manager has failed\n");
 		else
-			cout << "Creation of Zone Manager was a success.\n";
+			printf("Creation of Zone Manager was a success.\n");
 		mPhysX = PxCreatePhysics( PX_PHYSICS_VERSION, 
 									*mFoundation, 
 									physx::PxTolerancesScale(), //update 19-10-2012
 									recordMemoryAllocations,
 									mProfileZoneManager );
 		if( !mPhysX )
-			cout << "Creation of PhysX has failed\n";
+			printf("Creation of PhysX has failed\n");
 		else
-			cout << "Creation of PhysX was a success.\n";
+			printf("Creation of PhysX was a success.\n");
 		//PxCooking
 		mCp = physx::PxCookingParams();
 		mCooking = PxCreateCooking( PX_PHYSICS_VERSION, 
 									*mFoundation,
 									mCp);
 		if( !mCooking )
-			cout << "Cooking creation failed!!!\n";
+			printf("Cooking creation failed!!!\n");
 		else
-			cout << "Cooking creation successfull.\n";
+			printf("Cooking creation successfull.\n");
 		//PxSceneDesc - setting up the scene
 		mNbThreads = 1;
 		mMaterial = mPhysX->createMaterial( 0.5f, 0.5f, 0.1f );
@@ -171,7 +167,7 @@ public:
 #ifdef PX_WINDOWS
 		if( !sceneDesc.gpuDispatcher && mCudaContextManager )
 		{
-			cout << "If something wrong I am here.\n";
+			printf("If something wrong I am here.\n");
 			sceneDesc.gpuDispatcher = mCudaContextManager->getGpuDispatcher();
 		}
 #endif
@@ -223,19 +219,6 @@ public:
 	{
 		return CMutex::mActor;
 	}
-
-	virtual physx::PxCooking& getCooking() const
-	{
-		return *mCooking;
-	}
-	virtual physx::PxPhysics& getPhysX() const
-	{
-		return *mPhysX;
-	}
-	virtual physx::PxMaterial& getMaterial() const
-	{
-		return *mMaterial;
-	}
 	//Description
 	//This function will create an actor
 	//either static or rigid: kinematic or ragdoll
@@ -274,7 +257,7 @@ public:
 			mActor->userData = (void*)mCreation;
 			break;
 		default:
-			cout << "Unknown creation parameter, please specify a valid name\n";
+			printf("Unknown creation parameter, please specify a valid name\n");
 			break;
 		}
 		mActor->setMass( density );
@@ -283,7 +266,7 @@ public:
 		mActor->setLinearVelocity( velocity );
 		//add the actor to the scene
 		mScene->addActor( *mActor );
-		cout << "Creation of the actor was a success!\n";
+		printf("Creation of the actor was a success!\n");
 		return mActor;
 		
 	}
@@ -301,13 +284,13 @@ public:
 	//	mSphereActor->setLinearVelocity( velocity );
 	//	//add the actor to the scene
 	//	mScene->addActor( *mSphereActor );
-	//	cout << "Creation of the actor was a success!\n");
+	//	printf("Creation of the actor was a success!\n");
 	//	return mSphereActor;
 	//}
 	//Description
 	//This is a trial to pass the value of the scene
 	//to create an actor outside the base class
-	virtual physx::PxScene& Scene() const { return *mScene; }
+	virtual physx::PxScene* Scene() const { return mScene; }
 
 	//Description
 	//This function should translate rotations from the PhysX quartternion and matrix to irrlicht vector one
@@ -334,7 +317,7 @@ public:
 
 	virtual void moveLeft(){mActor->addForce(	PxVec3(-100.f,0.f,0.f), physx::PxForceMode::eIMPULSE );}
 	virtual void moveRight(){mActor->addForce(	PxVec3(100.f,0.f,0.f), physx::PxForceMode::eIMPULSE );}
-	virtual void Jump(){mActor->addForce(		PxVec3(0.f,10.f,0.f), physx::PxForceMode::eACCELERATION);}
+	virtual void Jump(){mActor->addForce(		PxVec3(0.f,10.f,0.f), physx::PxForceMode::eIMPULSE);}
 	virtual void moveIn(){mActor->addForce(		PxVec3(0.f,0.f,-100.f), physx::PxForceMode::eIMPULSE );}
 	virtual void moveForward(){mActor->addForce( PxVec3(0.f,0.f,100.f), physx::PxForceMode::eIMPULSE );}
 
@@ -434,7 +417,7 @@ public:
 		//check if the criteria are met
 		PX_ASSERT(mMeshDesc.isValid() );
 		if( !mCooking->cookClothFabric( mMeshDesc, mGravity, wb) )
-			cout << "Error cooking the cloth fabric!";
+			printf("Error cooking the cloth fabric!");
 		PxToolkit::MemoryInputData rb( wb.getData(), wb.getSize() );
 		mFabric = mPhysX->createClothFabric( rb );
 		physx::PxTransform tr;
@@ -491,11 +474,11 @@ public:
 
 	virtual const bool StartPvdNetwork()
 	{
-		cout << "Starting connection with PVD ...\n";
+		printf("Starting connection with PVD ...\n");
 		//check for compatybility with the current system
 		if( mPhysX->getPvdConnectionManager() == NULL )
 		{
-			cout << "Connection failed, could not establish manager!\n";
+			printf("Connection failed, could not establish manager!\n");
 			return false;
 		}
 		//connection parameters
@@ -503,12 +486,12 @@ public:
 		port		= 5425;			//TCP port to connect to,where PVD is listening
 		timeOut		= 100;			//timeout in milliseconds to wait for PVD respond
 									//consoles and remote PCs need a higher timeout.
-		cout << "Cration of parameters finished.\n";
+		printf("Cration of parameters finished.\n");
 		conFlags = PVD::PxVisualDebuggerExt::getAllConnectionFlags();
-		cout << "Flags created.\n";
+		printf("Flags created.\n");
 		pCon = PVD::PxVisualDebuggerExt::createConnection( mPhysX->getPvdConnectionManager(),
 			pvd_host_ip,port,timeOut,conFlags);
-		cout << "Creation of network connection to PVD was a success!\n";
+		printf("Creation of network connection to PVD was a success!\n");
 		return true;
 	}
 	//Description
@@ -516,11 +499,11 @@ public:
 	//Returns true if creation was success
 	virtual const bool StartPvdFile()
 	{
-		cout << "Checking compatybility.\n";
+		printf("Checking compatybility.\n");
 		//check for compatybility with the current system
 		if( mPhysX->getPvdConnectionManager() == NULL )
 		{
-			cout << "Could not establish manager";
+			printf("Could not establish manager");
 			return false;
 		}
 		//file parameters
@@ -528,15 +511,36 @@ public:
 		conFlags = PVD::PxVisualDebuggerExt::getAllConnectionFlags();
 		//attempt to connect
 		pCon = PVD::PxVisualDebuggerExt::createConnection( mPhysX->getPvdConnectionManager(),fileName, conFlags );
-		cout << "saving to file should work now.\n";
+		printf("saving to file should work now.\n");
 		return true;
 	}
-	//Description
-	//For now this function creates a tetragen, which combined 2 create pyramid.
-	virtual physx::PxRigidDynamic* CreatePyramid(PxVec3 position)
+	virtual physx::PxQuat QuatFromAxisAngle(const irr::core::vector3df axis, float angleInRadians)
 	{
+		 PxQuat result;
+		 float angle = angleInRadians / 2.0f;
+		 float sinAngle = sin(angle);
+		 irr::core::vector3df n = axis;
+		 n.normalize();
+
+		 result.w = cos(angle);
+		 result.x = n.X * sinAngle;
+		 result.y = n.Y * sinAngle;
+		 result.z = n.Z * sinAngle;
+
+		 return result;
+	}
+	//Description
+	//Creates not pyramid but the tetragen
+	// Param 1 - position PxVec3
+	// Param 2 - rotation vector3df
+	virtual physx::PxRigidDynamic* CreatePyramid(PxVec3& position = PxVec3(0), irr::core::vector3df rotation = irr::core::vector3df(0))
+	{
+		//position = PxTransform::createIdentity().p;
+		PxQuat orientation = PxTransform::createIdentity().q;
+		if( rotation != irr::core::vector3df(0) )
+			orientation = QuatFromAxisAngle( rotation, 0.5f);
 		//                      V - tip           I          II              III     
-		PxVec3 verts[] = {PxVec3(0,10,0), PxVec3(10,0,0), PxVec3(-10,0,0), PxVec3(0,0,10)};
+		PxVec3 verts[] = {PxVec3(0,8,0), PxVec3(10,0,0), PxVec3(-10,0,0), PxVec3(0,0,10)};
 		int j = 0;
 		for(int i = 0; i < 12; i += 3)
 		{
@@ -552,20 +556,22 @@ public:
 		PxToolkit::MemoryOutputStream buf;
 		if( !mCooking->cookConvexMesh( pyrDesc, buf ) )
 		{
-			cout << "Creation of convex mesh has failed!\n";
+			printf("Creation of convex mesh has failed!\n");
 			return false;
 		}
 		else
 		{
-			cout << "Convex shape creation - SUCCESS\n";
+			printf("Convex shape creation - SUCCESS\n");
 			PxToolkit::MemoryInputData input(buf.getData(), buf.getSize() );
 			pyr = mPhysX->createConvexMesh( input );
-			pyrAct = mPhysX->createRigidDynamic( physx::PxTransform( position ) );
-			pyrAct->setMass( 10.f );
+			pyrAct = mPhysX->createRigidDynamic( physx::PxTransform( position, orientation) );
+			pyrAct->setMass( 100.f );
 			pyrShape = pyrAct->createShape( physx::PxConvexMeshGeometry( pyr ), *mMaterial );// remember to give dereferenced pointer for materials ^_^
 			pyrAct->userData = verts;
+			pyrShape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);
+			PxRigidBodyExt::updateMassAndInertia( *pyrAct,100.f);
 			mScene->addActor( *pyrAct );
-			cout << "STATUS || Convex mesh = TRUE;\n";
+			printf("STATUS || Convex mesh = TRUE;\n");
 			return pyrAct;
 		}
 	return false;
@@ -574,6 +580,7 @@ public:
 	{
 		return m_verts;
 	}
+
 	virtual physx::PxFoundation* FoundationCallback(){return mFoundation;}
 
 	//Destructor

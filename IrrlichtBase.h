@@ -35,7 +35,6 @@ private:
 	io::IFileSystem* files;
 private:
 	CCustomNode* pyramid[12];
-	irr::core::matrix4 matrixForPhysX;
 private:
 	irr::scene::ICameraSceneNode* cam;
 	PxVec3 CamPosPhysX;
@@ -75,18 +74,18 @@ public:
 		rec->startEventProcess();
 		
 		files = device->getFileSystem();
+		files->addFileArchive("D:\\media");
 		files->addFolderFileArchive("D:\\media");
 		for( int i = 0; i < SPH; ++i )
 			m_Spheres[i] = NULL;
-		//Prototype( vector3df(1) );
-		addScene();
-		addObject(100, vector3df(0,10.f,10.f));
-		addPhysXObject();
+		//addScene();
+		//addObject(100, vector3df(0,10.f,10.f));
+		//addPhysXObject();
 		//----------------BOX----------------------------
-		addBlock();
+		addPyramid();
 		/////////////////////////////////////////////////
 		//addChassis();
-		addSpheres();
+		//addSpheres();
 		addCamera();
 		
 		//this needs to wrapped so we can use it inside the class without use of the id statement
@@ -99,62 +98,18 @@ public:
 public:
 	virtual bool addScene()
 	{
-		smgr->loadScene("D:\\media\\Egypt V6.irr");
+		smgr->loadScene("Egypt V6.irr");
 		m_light = smgr->addVolumeLightSceneNode();
 		m_light->setScale(core::vector3df(46.f,45.f,46.f));
-		m_light->getMaterial(0).setTexture(0, driver->getTexture("D:\\media\\lightFalloff.png"));
+		m_light->getMaterial(0).setTexture(0, driver->getTexture("lightFalloff.png"));
 		m_light->setPosition( vector3df(0,1000,0) );
 		return true;
 	}
 	virtual bool addNPC(){return true;}
 	virtual bool addPhysXNPC(){return true;}
-	virtual void Prototype(vector3df scale)
-	{
-		scene::IAnimatedMesh* mesh = smgr->getMesh("D:\\media\\cube.obj");
-		s32 meshBufferCount = mesh->getMesh(0)->getMeshBufferCount();
-		core::array<PxVec3> vertices;
-		core::array<PxU32> indices;
-
-		PxU32 tempIndexCount = 0;
-		for( int i = 0; i < meshBufferCount; ++i)
-		{
-			scene::IMeshBuffer* mb = mesh->getMesh(0)->getMeshBuffer(i);
-			s32 numVertices = mb->getVertexCount();
-			s32 numIndices = mb->getIndexCount();
-
-			video::S3DVertex2TCoords* mbVertices = (video::S3DVertex2TCoords*)mb->getVertices();
-			u16* mbIndices = mb->getIndices();
-			for( int j = 0; j < numVertices; ++j)
-				vertices.push_back(PxVec3(mbVertices[j].Pos.X * scale.X, mbVertices[j].Pos.Y * scale.Y, mbVertices[j].Pos.Z * scale.Z));
-			for( int k = 0; k < numIndices; ++k)
-				indices.push_back(PxU32(mbIndices[k]) + tempIndexCount);
-			tempIndexCount += numVertices;
-		}
-		mute->mTrialMeshDesc = new PxTriangleMeshDesc();
-		mute->mTrialMeshDesc->points.count = vertices.size();
-		mute->mTrialMeshDesc->triangles.count = indices.size() / 3;
-		mute->mTrialMeshDesc->points.stride = sizeof(PxVec3);
-		mute->mTrialMeshDesc->triangles.stride = 3*sizeof(PxVec3);
-		mute->mTrialMeshDesc->points.data = vertices.const_pointer();
-		mute->mTrialMeshDesc->triangles.data = indices.const_pointer();
-		mute->mTrialMeshDesc->flags = PxMeshFlags::PxFlags(0);
-		cout << endl << mute->mTrialMeshDesc->points.count << " Vertices.\n";
-		cout << indices.size() << " indices.\n";
-		cout << mute->mTrialMeshDesc->triangles.count << " triangles.\n";
-
-		PxToolkit::MemoryOutputStream buf;
-		mute->getCooking().cookTriangleMesh( *mute->mTrialMeshDesc, buf);
-		PxToolkit::MemoryInputData readBuffer(buf.getData(),buf.getSize());
-		mute->mTrialMesh = mute->getPhysX().createTriangleMesh(readBuffer);
-		mute->mTrialGeom = new PxTriangleMeshGeometry();
-		mute->mTrialGeom->triangleMesh = mute->mTrialMesh;
-		PxRigidDynamic* ac = mute->getPhysX().createRigidDynamic( PxTransform() );
-		PxShape* sh = ac->createShape( *mute->mTrialGeom, mute->getMaterial(), PxTransform( PxVec3(0,10,0) ) );
-		mute->Scene().addActor( *ac );
-	}
 	virtual bool addObject(int ID, irr::core::vector3df& Position)
 	{
-		scene::IAnimatedMesh* mesh = smgr->getMesh("D:\\media\\Pyramid.DAE");
+		scene::IAnimatedMesh* mesh = smgr->getMesh("Pyramid.DAE");
 		scene::IAnimatedMeshSceneNode* pyr = smgr->addAnimatedMeshSceneNode( mesh );
 		return true;
 	}
@@ -191,106 +146,65 @@ public:
 		return true;
 	}
 	//Description
-	//If you want to add a Block just call this method
+	//If you want to add pyramid just call this method
 	//Parameter 1 = position
 	//Parameter 2 = rotation
 	//When placed in a smart way can create wall or a column
 	//JaworekP1ay ^_^
-	virtual bool addBlock(vector3df& position = vector3df(0), vector3df& rotation = vector3df(0))
+	virtual bool addPyramid(vector3df& position = vector3df(0), vector3df& rotation = vector3df(0))
 	{
-		matrixForPhysX;
 		//----------------------------BASE----------------------------------------
 		pyramid[0] = new CCustomNode(		smgr->getRootSceneNode(), smgr,4,-1);
+		pyramid[0]->setDebugDataVisible(	scene::E_DEBUG_SCENE_TYPE::EDS_FULL );
+		pyramid[0]->setMaterialFlag(		video::EMF_LIGHTING, false);
 		pyramid[0]->setPosition(			position );
 		pyramid[0]->setRotation(			rotation + vector3df(0,45,0));
-		pyramid[0]->setMaterialTexture(		0,driver->getTexture("D:\\media\\wall.bmp") );
-
 		//vector3df(0,180,0)
 		pyramid[1] = new CCustomNode(		smgr->getRootSceneNode(), smgr,4,-1);
+		pyramid[1]->setDebugDataVisible(	scene::E_DEBUG_SCENE_TYPE::EDS_FULL );
+		pyramid[1]->setMaterialFlag(		video::EMF_LIGHTING, false);
 		pyramid[1]->setPosition(			position + vector3df(0,0,0));
 		pyramid[1]->setRotation(			vector3df(0,225,0));
-		pyramid[1]->setMaterialTexture(		0,driver->getTexture("D:\\media\\wall.bmp") );
 		//////////////////////////////////////////////////////////////////////////
 
 
 
 		//----------------------------TOP-----------------------------------------
 		pyramid[2] = new CCustomNode(		smgr->getRootSceneNode(), smgr,4,-1);
+		pyramid[2]->setDebugDataVisible(	scene::E_DEBUG_SCENE_TYPE::EDS_FULL );
+		pyramid[2]->setMaterialFlag(		video::EMF_LIGHTING, false);
 		pyramid[2]->setPosition(			position + vector3df(0,14,0) );
 		pyramid[2]->setRotation(			vector3df(180,45,0) );
-		pyramid[2]->setMaterialTexture(		0,driver->getTexture("D:\\media\\wall.bmp") );
 
 		pyramid[3] = new CCustomNode(		smgr->getRootSceneNode(), smgr,4,-1);
+		pyramid[3]->setDebugDataVisible(	scene::E_DEBUG_SCENE_TYPE::EDS_FULL );
+		pyramid[3]->setMaterialFlag(		video::EMF_LIGHTING, false);
 		pyramid[3]->setPosition(			position + vector3df(0,14,0) );
 		pyramid[3]->setRotation(			vector3df(180,225,0));
-		pyramid[3]->setMaterialTexture(		0,driver->getTexture("D:\\media\\wall.bmp") );
 		//////////////////////////////////////////////////////////////////////////
 
 
 
 		//----------------------------RIGHT---------------------------------------
 		pyramid[4] = new CCustomNode(		smgr->getRootSceneNode(), smgr,4,-1);
-		pyramid[4]->setPosition(			position + vector3df(7,7,0) );
-		pyramid[4]->setRotation(			vector3df(0,45,90));
-		pyramid[4]->setMaterialTexture(		0,driver->getTexture("D:\\media\\wall.bmp") );
+		pyramid[4]->setDebugDataVisible(	scene::E_DEBUG_SCENE_TYPE::EDS_FULL );
+		pyramid[4]->setMaterialFlag(		video::EMF_LIGHTING, false);
+		pyramid[4]->setPosition(			position + vector3df(8,8,0) );
+		pyramid[4]->setRotation(			vector3df(90,180,0));
 
 		pyramid[5] = new CCustomNode(		smgr->getRootSceneNode(), smgr,4,-1);
-		pyramid[5]->setPosition(			position + vector3df(7,7,0) );
-		pyramid[5]->setRotation(			vector3df(0,225,90));
-		pyramid[5]->setMaterialTexture(		0,driver->getTexture("D:\\media\\wall.bmp") );
-		//////////////////////////////////////////////////////////////////////////
-
-
-
-		//----------------------------LEFT----------------------------------------
-		pyramid[6] = new CCustomNode(		smgr->getRootSceneNode(), smgr,4,-1);
-		pyramid[6]->setPosition(			position + vector3df(-7,7,0) );
-		pyramid[6]->setRotation(			vector3df(180,45,90));
-		pyramid[6]->setMaterialTexture(		0,driver->getTexture("D:\\media\\wall.bmp") );
-
-		pyramid[7] = new CCustomNode(		smgr->getRootSceneNode(), smgr,4,-1);
-		pyramid[7]->setPosition(			position + vector3df(-7,7,0) );
-		pyramid[7]->setRotation(			vector3df(180,225,90));
-		pyramid[7]->setMaterialTexture(		0,driver->getTexture("D:\\media\\wall.bmp") );
-		//////////////////////////////////////////////////////////////////////////
-
-
-
-
-		//----------------------------FRONT---------------------------------------
-		pyramid[8] = new CCustomNode(		smgr->getRootSceneNode(), smgr,4,-1);
-		pyramid[8]->setPosition(			position + vector3df(0,7,-7) );
-		pyramid[8]->setRotation(			vector3df(90,0,45));
-		pyramid[8]->setMaterialTexture(		0,driver->getTexture("D:\\media\\wall.bmp") );
-
-		pyramid[9] = new CCustomNode(		smgr->getRootSceneNode(), smgr,4,-1);
-		pyramid[9]->setPosition(			position + vector3df(0,7,-7) );
-		pyramid[9]->setRotation(			vector3df(90,0,225));
-		pyramid[9]->setMaterialTexture(		0,driver->getTexture("D:\\media\\wall.bmp") );
-		//////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-		//----------------------------BACK----------------------------------------
-		pyramid[10] = new CCustomNode(		smgr->getRootSceneNode(), smgr,4,-1);
-		pyramid[10]->setPosition(			position + vector3df(0,7,7) );
-		pyramid[10]->setRotation(			vector3df(-90,0,45));
-		pyramid[10]->setMaterialTexture(		0,driver->getTexture("D:\\media\\wall.bmp") );
-
-		pyramid[11] = new CCustomNode(		smgr->getRootSceneNode(), smgr,4,-1);
-		pyramid[11]->setPosition(			position + vector3df(0,7,7) );
-		pyramid[11]->setRotation(			vector3df(-90,0,-135));
-		pyramid[11]->setMaterialTexture(		0,driver->getTexture("D:\\media\\wall.bmp") );
+		pyramid[5]->setDebugDataVisible(	scene::E_DEBUG_SCENE_TYPE::EDS_FULL );
+		pyramid[5]->setMaterialFlag(		video::EMF_LIGHTING, false);
+		pyramid[5]->setPosition(			position + vector3df(8,8,0) );
+		pyramid[5]->setRotation(			vector3df(225,180,0));
 		//////////////////////////////////////////////////////////////////////////
 
 		return true;
 	}
 	virtual bool addCamera()
 	{
-		cam = smgr->addCameraSceneNodeFPS(smgr->getRootSceneNode(), 100.f, 0.02f);
-		cam->setPosition( irr::core::vector3df( 0.f, 40.f, 70.f ) );
+		cam = smgr->addCameraSceneNodeFPS(smgr->getRootSceneNode(), 100.f, 0.2f);
+		cam->setPosition( irr::core::vector3df( 0.f, 0.f, -100.f ) );
 		cam->setTarget( vector3df(0) );
 		cam->setFarValue( 10000.f );
 		//cam->setTarget(m_Spheres[SPH - 1]->getIrrNode()->getPosition());
@@ -298,7 +212,7 @@ public:
 	}
 	virtual bool addPhysXObject()
 	{
-		mute->CreatePyramid(PxVec3(0));
+		mute->CreatePyramid(PxVec3(0), pyramid[1]->getRotation())	;
 		return true;
 	}
 	virtual bool addPlayerCharacter()
@@ -310,10 +224,9 @@ public:
 	virtual bool render()
 	{
 		u32 frames=0;
-		vector3df rot = pyramid[5]->getRotation();
 		while(device->run())
 		{
-			mute->advance(0.5f);
+			mute->advance(2.f);
 			driver->beginScene( true, true, irr::video::SColor(0,100,100,100) );
 			smgr->drawAll();
 			device->getGUIEnvironment()->drawAll();
@@ -325,18 +238,12 @@ public:
 				str += (s32)driver->getFPS();
 				str += L" Objects: ";
 				str += driver->getPrimitiveCountDrawn();
-				str += L" Position X: ";
-				str += rot.X;
-				str += L", Y = ";
-				str += rot.Y;
-				str += L", Z = ";
-				str += rot.Z;
 
 				device->setWindowCaption(str.c_str());
 				frames=0;
+			//mute->joinActors( mute->CreatePyramid(), mute->CreatePyramid() );
 
-
-			/*if( rec->isKeyDown( irr::KEY_KEY_A ) )
+			if( rec->isKeyDown( irr::KEY_KEY_A ) )
 				mute->moveLeft();
 			if( rec->isKeyDown( irr::KEY_KEY_D ) )
 				mute->moveRight();
@@ -345,14 +252,11 @@ public:
 			if( rec->isKeyDown( irr::KEY_KEY_S ) )
 				mute->moveIn();
 			if( rec->isKeyDown( irr::KEY_SPACE ) )
-				mute->Jump();*/
-			
+				mute->Jump();
 			if( rec->isKeyDown( irr::KEY_KEY_R ) )
 			{
 				cam->setPosition( vector3df(0.f,0.f,-100.f) );
 				cam->setTarget( vector3df(0) );
-				rot = vector3df(0,0,0);
-				pyramid[5]->setRotation( rot );
 			}
 			if( rec->isKeyDown( irr::KEY_ESCAPE ) )
 			{
