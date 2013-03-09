@@ -86,7 +86,7 @@ protected:
 	//------------------------------Character Cotroller
 	physx::PxControllerManager*		ConManager;
 	//------------------------------Joint
-	physx::PxRevoluteJoint*			mJoint;
+	physx::PxFixedJoint*			mJoint;
 	//------------------------------Cloth
 	physx::PxClothMeshDesc			mMeshDesc;
 	physx::PxCloth*					mCloth;
@@ -326,13 +326,13 @@ public:
 		PxJointLimitPair* limitPair = new PxJointLimitPair(-PxPi/4, PxPi/4, 0.1f);
 		limitPair->spring = 10.f;
 		limitPair->damping = 2.f;
-		mJoint = physx::PxRevoluteJointCreate(*mPhysX, 
+		mJoint = physx::PxFixedJointCreate(*mPhysX, 
 													actor1, actor1->getGlobalPose(), 
 													actor2, actor2->getGlobalPose());
 		mJoint->setConstraintFlag( PxConstraintFlag::eVISUALIZATION,true );
 		mJoint->setProjectionLinearTolerance(0.1f);
-		mJoint->setLimit(*limitPair); // upper, lower, tolerance
-		mJoint->setRevoluteJointFlag(PxRevoluteJointFlag::eLIMIT_ENABLED, true);
+		//mJoint->setLimit(*limitPair); // upper, lower, tolerance
+		//mJoint->setRevoluteJointFlag(PxRevoluteJointFlag::eLIMIT_ENABLED, true);
 		delete limitPair;
 	} 
 
@@ -537,10 +537,14 @@ public:
 	{
 		//position = PxTransform::createIdentity().p;
 		PxQuat orientation = PxTransform::createIdentity().q;
-		if( rotation != irr::core::vector3df(0) )
-			orientation = QuatFromAxisAngle( rotation, 0.5f);
-		//                      V - tip           I          II              III     
-		PxVec3 verts[] = {PxVec3(0,8,0), PxVec3(10,0,0), PxVec3(-10,0,0), PxVec3(0,0,10)};
+		if( rotation.X != 0 )
+			orientation *= QuatFromAxisAngle( rotation, rotation.X);
+		if( rotation.Y != 0 )
+			orientation *= QuatFromAxisAngle( rotation, rotation.Y);
+		if( rotation.Z != 0 )
+			orientation *= QuatFromAxisAngle( rotation, rotation.Z);
+		//                      iV - tip           I          II              III     
+		PxVec3 verts[] = {PxVec3(0,7,0), PxVec3(10,0,0), PxVec3(-10,0,0), PxVec3(0,0,10)};
 		int j = 0;
 		for(int i = 0; i < 12; i += 3)
 		{
@@ -569,8 +573,10 @@ public:
 			pyrShape = pyrAct->createShape( physx::PxConvexMeshGeometry( pyr ), *mMaterial );// remember to give dereferenced pointer for materials ^_^
 			pyrAct->userData = verts;
 			pyrShape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);
+			//pyrAct->setRigidDynamicFlag( PxRigidDynamicFlag::eKINEMATIC,true);
 			PxRigidBodyExt::updateMassAndInertia( *pyrAct,100.f);
 			mScene->addActor( *pyrAct );
+			mvActors.push_back(pyrAct);
 			printf("STATUS || Convex mesh = TRUE;\n");
 			return pyrAct;
 		}

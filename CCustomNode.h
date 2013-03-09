@@ -25,19 +25,25 @@ public:
 	{
 		material.Wireframe = false;
 		material.Lighting  = false;
+		material.BackfaceCulling = true;
+
+		u32 r,g,b;
+		r = 150;
+		g = 130;
+		b = 95;
 
 		//vector3df I(0,0,20),II(-20,0,0),III(0,0,-20),IV(20,0,0),V(0,30,0);
 		//vector3df In(I),IIn(II),IIIn(III),IVn(IV),Vn(V);
 		//In.normalize();IIn.normalize();IIIn.normalize();IVn.normalize();Vn.normalize();
 
 		Vertices[0] = video::S3DVertex(0,0,10, 1,1,0,//I
-                video::SColor(255,0,255,255), 0, 1);
+                video::SColor(255,r,g,b), 0, 1);
         Vertices[1] = video::S3DVertex(10,0,0, 1,0,0,//II
-                video::SColor(255,255,0,255), 1, 1);
-        Vertices[2] = video::S3DVertex(0,8,0, 0,1,1,//height IV
-                video::SColor(255,255,255,0), 1, 0);
+                video::SColor(255,r,g,b), 1, 1);
+        Vertices[2] = video::S3DVertex(0,7,0, 0,1,1,//height IV
+                video::SColor(255,r,g,b), 1, 0);
         Vertices[3] = video::S3DVertex(0,0,-10, 0,0,1,//III
-                video::SColor(255,0,255,0), 0, 0);
+                video::SColor(255,r,g,b), 0, 0);
 
 		box.reset(Vertices[0].Pos);
 		for( int i = 0; i < numberOfVerticies; ++i )
@@ -72,12 +78,10 @@ public:
 		fM[9] = mat.column2.y;
 		fM[10] = mat.column2.z;
 		irrM.setM( fM );
-		
-		/*if( typeid( irrActor ).name() == "class irr::scene::ISceneNode *" )*/
-			//irrActor->setRotation( irrM.getRotationDegrees() );
 
-
-		this->getRotation();
+		PxQuat* qu = new PxQuat();
+		qu->createIdentity();
+		return qu;
 	}
 
 	virtual const core::aabbox3d<irr::f32>& getBoundingBox() const { return box;}
