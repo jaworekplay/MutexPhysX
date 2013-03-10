@@ -38,6 +38,52 @@ enum E_ACTOR_CREATION
 	eAC_COUNT //do not use!
 };
 
+static const PxReal gCharacterScale = 0.1;
+
+static const PxReal gSphereRadius[] = { 
+	2.0f,  // root
+
+	// left lower limb
+	1.5f,  // lhipjoint
+	1.5f,  // lfemur (upper leg)
+	1.0f,  // ltibia (lower leg)
+	1.0f,  // lfoot
+	1.0f,  // ltoes
+
+	// right lower limb
+	1.5f,  // rhipjoint
+	1.5f,  // rfemur
+	1.0f,  // rtibia
+	1.0f,  // rfoot
+	1.0f,  // rtoes
+
+	// spine
+	2.5f,  // lowerback
+	2.5f,  // upperback
+	2.0f,  // thorax
+	1.0f,  // lowerneck
+	1.0f,  // upperneck
+
+	2.0f,  // head
+
+	// left arm/hand
+	1.5f,  // lclavicle (shoulder)
+	1.5f,  // lhumerus (upper arm)
+	1.3f,  // lradius (lower arm)
+	1.5f,  // lwrist
+	1.8f,  // lhand
+	0.5f,  // lfingers
+	0.5f,  // lthumb
+
+	// right arm/hand
+	1.5f,  // rclavicle
+	1.5f,  // rhumerus
+	1.3f,  // rradius
+	1.5f,  // rwrist
+	1.8f,  // rhand
+	0.5f,  // rfingers
+	0.5f,  // rthumb
+};
 
 class CMutex
 {
@@ -311,7 +357,7 @@ public:
 		irrM.setM( fM );
 	}
 
-	void getResults(){mScene->fetchResults(true);};
+	void getResults(){mScene->fetchResults(true);}
 
 	const int CUDA(){if(mCudaContextManager) return 1; return 0;}
 
@@ -340,129 +386,117 @@ public:
 	//This function should be able to create cloth in PhysX engine not in the Irrlicht one!!!
 	virtual physx::PxCloth* CreateCloth()
 	{
-		mMeshDesc.setToDefault();
-		//geometry values
-		int w = 8, h = 7;
-		float hw = w / 2.f;
-		float hh = h / 2.f;
-		float d = 0.2f;
-		//					this is short hand version of casting result of division into the int type
-		//				  / full version would be static_cast<int>((w / d) + 1);
-		//		   |    \/_   |
-		int numX = (int)(w / d) +1;
-		int numY = (int)(h / d) +1;
-		mMeshDesc.points.count = (numX + 1) * (numY + 1);
-		mMeshDesc.triangles.count = numX * numY * 2;
-		mMeshDesc.points.stride = sizeof( PxVec3 );
-		mMeshDesc.triangles.stride = 3 * sizeof(PxU32);
-		//if anybody struggles to understand this bit
-		//answer in the box on this question
-		//what is "void* ptr;" ?
-		//if you can answer this then I'll explain this to you
-		mMeshDesc.points.data = (PxVec3*)malloc(sizeof(PxVec3)* mMeshDesc.points.count );
-		mMeshDesc.triangles.data = (physx::PxU32*)malloc( sizeof( physx::PxU32 ) * mMeshDesc.triangles.count * 3);
-		mMeshDesc.edgeFlags = 0;
+		// compute root transform and positions of all the bones
+		/*PxTransform rootPose;*/
+		vector<PxVec3> positions;	
+		vector<PxU32> indexPairs;
+		/*mCharacter.getFramePose(rootPose, positions, indexPairs);*/
 
-		//Geometry
-		int i,j;
-		physx::PxVec3* p = (physx::PxVec3*)mMeshDesc.points.data;
-		mPos.resize( mMeshDesc.points.count );
-		mNormal.resize( mMeshDesc.points.count );
-		mIndices.resize( mMeshDesc.triangles.count * 3 );
-
-		for( i = 0; i <= numY; ++i )
+		// convert bones to collision capsules
+		vector<PxClothCollisionSphere> spheres;
+		vector<PxClothCollisionSphere>::iterator it;
+		spheres.resize(positions.size());
+		for (PxU32 i = 0; i < positions.size(); i++)
 		{
-			for( j = 0; j <= numX; ++j )
-			{
-				p->x = d*j-hw;
-				p->y = float(h);
-				p->z = d*i;
-				++p;
-			}
+			spheres[i].pos = positions[i];
+			spheres[i].radius = gCharacterScale * gSphereRadius[i];
 		}
-		memcpy( &mPos[0].x, (mMeshDesc.points.data), sizeof(physx::PxVec3)* mMeshDesc.points.count );
-		
-		//Topology
-		physx::PxU32* id = (physx::PxU32*)mMeshDesc.triangles.data;
-		for( i = 0; i < numY; ++i )
-		{
-			for( j = 0; j < numX; ++j )
-			{
-				PxU32 i0 = i * (numX+1) + j;            
-				PxU32 i1 = i0 + 1;            
-				PxU32 i2 = i0 + (numX+1);            
-				PxU32 i3 = i2 + 1;
-				if ((j+i)%2) 
-				{                
-					*id++ = i0;
-					*id++ = i2;
-					*id++ = i1;                
-					*id++ = i1;
-					*id++ = i2;
-					*id++ = i3;            
-				} 
-				else 
-				{                
-					*id++ = i0;
-					*id++ = i2;
-					*id++ = i3;                
-					*id++ = i0;
-					*id++ = i3;
-					*id++ = i1;
-				}
-			}
-		}
-		memcpy( &mIndices[0], mMeshDesc.triangles.data, sizeof(physx::PxU32)*mMeshDesc.triangles.count * 3);
 
-		//check if the criteria are met
-		PX_ASSERT(mMeshDesc.isValid() );
-		if( !mCooking->cookClothFabric( mMeshDesc, mGravity, wb) )
-			printf("Error cooking the cloth fabric!");
-		PxToolkit::MemoryInputData rb( wb.getData(), wb.getSize() );
-		mFabric = mPhysX->createClothFabric( rb );
-		physx::PxTransform tr;
-		tr.p = physx::PxVec3(0,10,0);
-		tr.q = physx::PxQuat::createIdentity();
-		mPoints = (physx::PxClothParticle*)malloc( sizeof(physx::PxClothParticle)* mMeshDesc.points.count );
-		p = (physx::PxVec3*)mMeshDesc.points.data;
-		for( size_t i = 0; i < mMeshDesc.points.count; ++i )
-		{
-			mPoints[i].pos = *p;
-			//Top corner points
-			if( i == 0 || i == numX )
-				mPoints[i].invWeight = 0;
-			else
-				mPoints[i].invWeight = 1.f;
-			++p;
-		}
-		cd.setToDefault();
-		physx::PxClothCollisionSphere	mCollider[2]= {
-			{PxVec3(-1.0f, 0.0f, 0.0f), 0.5f},
-			{PxVec3( 1.0f, 0.0f, 0.0f), 0.25f}};
-		physx::PxU32 capsulePairs[] = {0,1};
-		cd.spheres = mCollider;
-		cd.numSpheres = 2;
-		cd.pairIndexBuffer = capsulePairs;
-		cd.numPairs = 1;
-		mPlane.normal = physx::PxVec3(0.f,1.f,0.f);
-		mPlane.distance = 0.f;
-		physx::PxU32 convMask = 1;//Convex references to the first plane only
-		mCloth->addCollisionPlane( mPlane );
-		mCloth->addCollisionConvex( convMask );
-		mCloth->userData = this;
-		mCloth->setClothFlag( physx::PxClothFlag::eSWEPT_CONTACT, true);
-		mCloth = mPhysX->createCloth( pose, *mFabric, mPoints, cd, physx::PxClothFlag::eSWEPT_CONTACT);
-		mCps.solverType = physx::PxClothPhaseSolverConfig::eFAST;
-		mCps.stiffness = 1;
-		mCps.stretchStiffness = 0.5f;
+		PxClothCollisionData collisionData;
+		collisionData.numSpheres = static_cast<PxU32>(positions.size());
+		collisionData.spheres = it;
+		collisionData.numPairs = static_cast<PxU32>(indexPairs.size()) / 2; // number of capsules
+		collisionData.pairIndexBuffer = indexPairs.begin();
 
-		mCloth->setPhaseSolverConfig( physx::PxClothFabricPhaseType::eBENDING,mCps );
-		mCloth->setPhaseSolverConfig( physx::PxClothFabricPhaseType::eSTRETCHING, mCps );
-		mCloth->setPhaseSolverConfig( physx::PxClothFabricPhaseType::eSHEARING, mCps );
-		mCloth->setPhaseSolverConfig( physx::PxClothFabricPhaseType::eSTRETCHING_HORIZONTAL, mCps );
-		mCloth->setDampingCoefficient( 0.125f );
-		mScene->addActor( *mCloth );
-		return mCloth;
+		// create the cloth cape mesh from file
+		PxClothMeshDesc meshDesc;
+		SampleArray<PxVec3> vertices;
+		SampleArray<PxU32> primitives;
+		SampleArray<PxReal> uvs;
+		const char* capeFileName = getSampleMediaFilename("ctdm_cape_m.obj");
+		PxReal clothScale = gCharacterScale * 0.3f;
+		PxVec3 offset = PxVec3(0,-1.5,0); 
+		PxQuat rot = PxQuat(0, PxVec3(0,1,0));
+		Test::ClothHelpers::createMeshFromObj(capeFileName, clothScale, &rot, &offset, 
+			vertices, primitives, &uvs, meshDesc);
+
+		if (!meshDesc.isValid()) fatalError("Could not load ctdm_cape_m.obj\n");
+		// create the cloth
+		PxCloth& cloth = *createClothFromMeshDesc(
+			meshDesc, rootPose, &collisionData, PxVec3(0,-1,0),
+			uvs.begin(), "dummy_cape_d.bmp", PxVec3(0.5f, 0.5f, 0.5f), 0.8f);
+
+		mCape = &cloth;
+
+		// attach top verts
+		PxClothReadData* readData = cloth.lockClothReadData();
+		PX_ASSERT(readData);
+		PxU32 numParticles = cloth.getNbParticles();
+		SampleArray<PxClothParticle> particles(numParticles);
+		SampleArray<PxVec3> particlePositions(numParticles);
+		for(PxU32 i = 0; i < numParticles; i++)
+		{
+			particles[i].pos = readData->particles[i].pos;
+			particles[i].invWeight = (uvs[i*2+1] > 0.85f) ? 0.0f : readData->particles[i].invWeight;
+			particlePositions[i] = readData->particles[i].pos;
+		}
+		readData->unlock();
+		cloth.setParticles(particles.begin(), particles.begin());
+
+		// compute initial skin binding to the character
+		mSkin.bindToCharacter(mCharacter, particlePositions);
+
+		// set solver settings
+		cloth.setSolverFrequency(240);
+
+		// damp global particle velocity to 90% every 0.1 seconds
+		cloth.setDampingCoefficient(0.1f); // damp local particle velocity
+		cloth.setDragCoefficient(0.1f); // transfer frame velocity
+
+		// reduce effect of local frame acceleration
+		cloth.setInertiaScale(0.3f);
+	
+		const bool useVirtualParticles = true;
+		const bool useSweptContact = true;
+		const bool useCustomConfig = true;
+
+		// virtual particles
+		if (useVirtualParticles)
+			Test::ClothHelpers::createVirtualParticles(cloth, meshDesc, 4);
+
+		// ccd
+		cloth.setClothFlag(PxClothFlag::eSWEPT_CONTACT, useSweptContact);
+
+		// use GPU or not
+	#if PX_SUPPORT_GPU_PHYSX
+		cloth.setClothFlag(PxClothFlag::eGPU, mUseGPU);
+	#endif
+
+		// custom fiber configuration
+		if (useCustomConfig)
+		{
+			PxClothPhaseSolverConfig config;
+
+			config = cloth.getPhaseSolverConfig(PxClothFabricPhaseType::eSTRETCHING);
+			config.solverType = PxClothPhaseSolverConfig::eSTIFF;
+			config.stiffness = 1.0f;
+			cloth.setPhaseSolverConfig(PxClothFabricPhaseType::eSTRETCHING, config);
+
+			config = cloth.getPhaseSolverConfig(PxClothFabricPhaseType::eSTRETCHING_HORIZONTAL);
+			config.solverType = PxClothPhaseSolverConfig::eFAST;
+			config.stiffness = 1.0f;
+			cloth.setPhaseSolverConfig(PxClothFabricPhaseType::eSTRETCHING_HORIZONTAL, config);
+
+			config = cloth.getPhaseSolverConfig(PxClothFabricPhaseType::eSHEARING);
+			config.solverType = PxClothPhaseSolverConfig::eFAST;
+			config.stiffness = 0.75f;
+			cloth.setPhaseSolverConfig(PxClothFabricPhaseType::eSHEARING, config);
+
+			config = cloth.getPhaseSolverConfig(PxClothFabricPhaseType::eBENDING_ANGLE);
+			config.solverType = PxClothPhaseSolverConfig::eBENDING;
+			config.stiffness = 0.5f;
+			cloth.setPhaseSolverConfig(PxClothFabricPhaseType::eBENDING_ANGLE, config);
+		}
 	}
 
 	//Description
