@@ -10,34 +10,37 @@ using namespace physx;
 class CIrrlichtBase
 {
 private:
-	static const unsigned __int16 MAX = 11U; // 11 elements for the body of the character
-	static const unsigned int SPH = 20;//
-	ICustomEventReceiver* rec;
+	static const unsigned __int16	MAX = 11U; // 11 elements for the body of the character
+	static const unsigned int		SPH = 20;//
+	ICustomEventReceiver*			rec;
 	irr::core::dimension2d<irr::u32> size;
-	irr::video::E_DRIVER_TYPE driverType;
-	irr::IrrlichtDevice* device;
-	irr::scene::ISceneNode* m_rootNode;
-	irr::scene::ISceneNode* temp;
+	irr::video::E_DRIVER_TYPE		driverType;
+	irr::IrrlichtDevice*			device;
+	irr::scene::ISceneNode*			m_rootNode;
+	irr::scene::ISceneNode*			temp;
 	irr::scene::ISceneCollisionManager* cmgr;
-	irr::core::vector3df m_pos;
-	irr::core::vector3df m_rot;
-	irr::core::vector3df m_scale;
+	irr::core::vector3df			m_pos;
+	irr::core::vector3df			m_rot;
+	irr::core::vector3df			m_scale;
 	std::vector<irr::scene::ISceneNode*> m_vNPC;
-	std::vector<physx::PxActor*> m_vPxNPC;
+	std::vector<physx::PxActor*>	m_vPxNPC;
 	std::vector<irr::scene::ISceneNode*> m_vObj;
 	std::vector<physx::PxRigidStatic*> m_vPxObj;
 private:
-	CMutex* mute;
+	CMutex*		mute;
 	CPhysXNode* physicsActor[MAX];
+	CPhysXNode* startPxNode;
 	CPhysXNode* m_Spheres[SPH];
 	CPhysXNode* m_Walls[4];
 private:
 	io::IFileSystem* files;
 private:
 	CCustomNode* pyramid[12];
+	CCustomNode* startNode;
 private:
 	irr::scene::ICameraSceneNode* cam;
 	PxVec3 CamPosPhysX;
+	physx::PxRigidDynamic* startPhysXNode;
 	scene::IVolumeLightSceneNode* m_light;
 	enum eBodyParts
 	{
@@ -84,6 +87,7 @@ public:
 		//addChassis();
 		//addSpheres();
 		addBlock();
+		PhysXWall();
 		addPhysXObject(vector3df(0));
 		addPhysXObject(vector3df(15,0,0),pyramid[1]->getRotation() );
 		addCamera();
@@ -119,7 +123,7 @@ public:
 		
 		for( int i = 0; i < SPH; ++i )
 		{
-			m_Spheres[i] = new CPhysXNode( mute->CreateActor(E_ACTOR_CREATION::eAC_Box,pos),smgr );
+			m_Spheres[i] = new CPhysXNode( mute->CreateActor(E_ACTOR_CREATION::eAC_Box,pos),smgr,*mute );
 			m_Spheres[i]->getIrrNode()->setMaterialFlag( irr::video::EMF_LIGHTING, true);
 			m_Spheres[i]->getIrrNode()->setMaterialTexture(0, driver->getTexture("media\\wall.bmp") );
 			pos.x = rand() % 200;
@@ -244,6 +248,15 @@ public:
 		}
 		return true;
 	}
+
+	virtual bool PhysXWall()
+	{
+		startNode = new CCustomNode( smgr->getRootSceneNode(), smgr);
+		this->m_pxNode = new CPhysXNode(*mute, pyramid); 
+		this->m_pxNode->createBlock(vector3df(0),vector3df(0));
+		return true;
+	}
+
 	virtual bool addCamera()
 	{
 		cam = smgr->addCameraSceneNodeFPS(smgr->getRootSceneNode(), 100.f, 0.2f);
@@ -266,7 +279,7 @@ public:
 	virtual bool addPlayerCharacter()
 	{
 		//let's start with head
-		physicsActor[eHEAD] = new CPhysXNode(mute->CreateActor(eAC_Sphere, PxVec3(0)), smgr);
+		physicsActor[eHEAD] = new CPhysXNode(mute->CreateActor(eAC_Sphere, PxVec3(0)), smgr, *mute);
 		return true;
 	}
 	virtual bool render()

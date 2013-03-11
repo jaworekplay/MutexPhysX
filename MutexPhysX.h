@@ -35,6 +35,7 @@ enum E_ACTOR_CREATION
 	eAC_Box,
 	eAC_Convex,
 	eAC_Face,
+	eAC_Block,
 	eAC_COUNT //do not use!
 };
 
@@ -386,117 +387,118 @@ public:
 	//This function should be able to create cloth in PhysX engine not in the Irrlicht one!!!
 	virtual physx::PxCloth* CreateCloth()
 	{
-		// compute root transform and positions of all the bones
-		/*PxTransform rootPose;*/
-		vector<PxVec3> positions;	
-		vector<PxU32> indexPairs;
-		/*mCharacter.getFramePose(rootPose, positions, indexPairs);*/
+	//	// compute root transform and positions of all the bones
+	//	/*PxTransform rootPose;*/
+	//	vector<PxVec3> positions;	
+	//	vector<PxU32> indexPairs;
+	//	/*mCharacter.getFramePose(rootPose, positions, indexPairs);*/
 
-		// convert bones to collision capsules
-		vector<PxClothCollisionSphere> spheres;
-		vector<PxClothCollisionSphere>::iterator it;
-		spheres.resize(positions.size());
-		for (PxU32 i = 0; i < positions.size(); i++)
-		{
-			spheres[i].pos = positions[i];
-			spheres[i].radius = gCharacterScale * gSphereRadius[i];
-		}
+	//	// convert bones to collision capsules
+	//	vector<PxClothCollisionSphere> spheres;
+	//	vector<PxClothCollisionSphere>::iterator it;
+	//	spheres.resize(positions.size());
+	//	for (PxU32 i = 0; i < positions.size(); i++)
+	//	{
+	//		spheres[i].pos = positions[i];
+	//		spheres[i].radius = gCharacterScale * gSphereRadius[i];
+	//	}
 
-		PxClothCollisionData collisionData;
-		collisionData.numSpheres = static_cast<PxU32>(positions.size());
-		collisionData.spheres = it;
-		collisionData.numPairs = static_cast<PxU32>(indexPairs.size()) / 2; // number of capsules
-		collisionData.pairIndexBuffer = indexPairs.begin();
+	//	PxClothCollisionData collisionData;
+	//	collisionData.numSpheres = static_cast<PxU32>(positions.size());
+	//	collisionData.spheres = it;
+	//	collisionData.numPairs = static_cast<PxU32>(indexPairs.size()) / 2; // number of capsules
+	//	collisionData.pairIndexBuffer = indexPairs.begin();
 
-		// create the cloth cape mesh from file
-		PxClothMeshDesc meshDesc;
-		SampleArray<PxVec3> vertices;
-		SampleArray<PxU32> primitives;
-		SampleArray<PxReal> uvs;
-		const char* capeFileName = getSampleMediaFilename("ctdm_cape_m.obj");
-		PxReal clothScale = gCharacterScale * 0.3f;
-		PxVec3 offset = PxVec3(0,-1.5,0); 
-		PxQuat rot = PxQuat(0, PxVec3(0,1,0));
-		Test::ClothHelpers::createMeshFromObj(capeFileName, clothScale, &rot, &offset, 
-			vertices, primitives, &uvs, meshDesc);
+	//	// create the cloth cape mesh from file
+	//	PxClothMeshDesc meshDesc;
+	//	SampleArray<PxVec3> vertices;
+	//	SampleArray<PxU32> primitives;
+	//	SampleArray<PxReal> uvs;
+	//	const char* capeFileName = getSampleMediaFilename("ctdm_cape_m.obj");
+	//	PxReal clothScale = gCharacterScale * 0.3f;
+	//	PxVec3 offset = PxVec3(0,-1.5,0); 
+	//	PxQuat rot = PxQuat(0, PxVec3(0,1,0));
+	//	Test::ClothHelpers::createMeshFromObj(capeFileName, clothScale, &rot, &offset, 
+	//		vertices, primitives, &uvs, meshDesc);
 
-		if (!meshDesc.isValid()) fatalError("Could not load ctdm_cape_m.obj\n");
-		// create the cloth
-		PxCloth& cloth = *createClothFromMeshDesc(
-			meshDesc, rootPose, &collisionData, PxVec3(0,-1,0),
-			uvs.begin(), "dummy_cape_d.bmp", PxVec3(0.5f, 0.5f, 0.5f), 0.8f);
+	//	if (!meshDesc.isValid()) fatalError("Could not load ctdm_cape_m.obj\n");
+	//	// create the cloth
+	//	PxCloth& cloth = *createClothFromMeshDesc(
+	//		meshDesc, rootPose, &collisionData, PxVec3(0,-1,0),
+	//		uvs.begin(), "dummy_cape_d.bmp", PxVec3(0.5f, 0.5f, 0.5f), 0.8f);
 
-		mCape = &cloth;
+	//	mCape = &cloth;
 
-		// attach top verts
-		PxClothReadData* readData = cloth.lockClothReadData();
-		PX_ASSERT(readData);
-		PxU32 numParticles = cloth.getNbParticles();
-		SampleArray<PxClothParticle> particles(numParticles);
-		SampleArray<PxVec3> particlePositions(numParticles);
-		for(PxU32 i = 0; i < numParticles; i++)
-		{
-			particles[i].pos = readData->particles[i].pos;
-			particles[i].invWeight = (uvs[i*2+1] > 0.85f) ? 0.0f : readData->particles[i].invWeight;
-			particlePositions[i] = readData->particles[i].pos;
-		}
-		readData->unlock();
-		cloth.setParticles(particles.begin(), particles.begin());
+	//	// attach top verts
+	//	PxClothReadData* readData = cloth.lockClothReadData();
+	//	PX_ASSERT(readData);
+	//	PxU32 numParticles = cloth.getNbParticles();
+	//	SampleArray<PxClothParticle> particles(numParticles);
+	//	SampleArray<PxVec3> particlePositions(numParticles);
+	//	for(PxU32 i = 0; i < numParticles; i++)
+	//	{
+	//		particles[i].pos = readData->particles[i].pos;
+	//		particles[i].invWeight = (uvs[i*2+1] > 0.85f) ? 0.0f : readData->particles[i].invWeight;
+	//		particlePositions[i] = readData->particles[i].pos;
+	//	}
+	//	readData->unlock();
+	//	cloth.setParticles(particles.begin(), particles.begin());
 
-		// compute initial skin binding to the character
-		mSkin.bindToCharacter(mCharacter, particlePositions);
+	//	// compute initial skin binding to the character
+	//	mSkin.bindToCharacter(mCharacter, particlePositions);
 
-		// set solver settings
-		cloth.setSolverFrequency(240);
+	//	// set solver settings
+	//	cloth.setSolverFrequency(240);
 
-		// damp global particle velocity to 90% every 0.1 seconds
-		cloth.setDampingCoefficient(0.1f); // damp local particle velocity
-		cloth.setDragCoefficient(0.1f); // transfer frame velocity
+	//	// damp global particle velocity to 90% every 0.1 seconds
+	//	cloth.setDampingCoefficient(0.1f); // damp local particle velocity
+	//	cloth.setDragCoefficient(0.1f); // transfer frame velocity
 
-		// reduce effect of local frame acceleration
-		cloth.setInertiaScale(0.3f);
-	
-		const bool useVirtualParticles = true;
-		const bool useSweptContact = true;
-		const bool useCustomConfig = true;
+	//	// reduce effect of local frame acceleration
+	//	cloth.setInertiaScale(0.3f);
+	//
+	//	const bool useVirtualParticles = true;
+	//	const bool useSweptContact = true;
+	//	const bool useCustomConfig = true;
 
-		// virtual particles
-		if (useVirtualParticles)
-			Test::ClothHelpers::createVirtualParticles(cloth, meshDesc, 4);
+	//	// virtual particles
+	//	if (useVirtualParticles)
+	//		Test::ClothHelpers::createVirtualParticles(cloth, meshDesc, 4);
 
-		// ccd
-		cloth.setClothFlag(PxClothFlag::eSWEPT_CONTACT, useSweptContact);
+	//	// ccd
+	//	cloth.setClothFlag(PxClothFlag::eSWEPT_CONTACT, useSweptContact);
 
-		// use GPU or not
-	#if PX_SUPPORT_GPU_PHYSX
-		cloth.setClothFlag(PxClothFlag::eGPU, mUseGPU);
-	#endif
+	//	// use GPU or not
+	//#if PX_SUPPORT_GPU_PHYSX
+	//	cloth.setClothFlag(PxClothFlag::eGPU, mUseGPU);
+	//#endif
 
-		// custom fiber configuration
-		if (useCustomConfig)
-		{
-			PxClothPhaseSolverConfig config;
+	//	// custom fiber configuration
+	//	if (useCustomConfig)
+	//	{
+	//		PxClothPhaseSolverConfig config;
 
-			config = cloth.getPhaseSolverConfig(PxClothFabricPhaseType::eSTRETCHING);
-			config.solverType = PxClothPhaseSolverConfig::eSTIFF;
-			config.stiffness = 1.0f;
-			cloth.setPhaseSolverConfig(PxClothFabricPhaseType::eSTRETCHING, config);
+	//		config = cloth.getPhaseSolverConfig(PxClothFabricPhaseType::eSTRETCHING);
+	//		config.solverType = PxClothPhaseSolverConfig::eSTIFF;
+	//		config.stiffness = 1.0f;
+	//		cloth.setPhaseSolverConfig(PxClothFabricPhaseType::eSTRETCHING, config);
 
-			config = cloth.getPhaseSolverConfig(PxClothFabricPhaseType::eSTRETCHING_HORIZONTAL);
-			config.solverType = PxClothPhaseSolverConfig::eFAST;
-			config.stiffness = 1.0f;
-			cloth.setPhaseSolverConfig(PxClothFabricPhaseType::eSTRETCHING_HORIZONTAL, config);
+	//		config = cloth.getPhaseSolverConfig(PxClothFabricPhaseType::eSTRETCHING_HORIZONTAL);
+	//		config.solverType = PxClothPhaseSolverConfig::eFAST;
+	//		config.stiffness = 1.0f;
+	//		cloth.setPhaseSolverConfig(PxClothFabricPhaseType::eSTRETCHING_HORIZONTAL, config);
 
-			config = cloth.getPhaseSolverConfig(PxClothFabricPhaseType::eSHEARING);
-			config.solverType = PxClothPhaseSolverConfig::eFAST;
-			config.stiffness = 0.75f;
-			cloth.setPhaseSolverConfig(PxClothFabricPhaseType::eSHEARING, config);
+	//		config = cloth.getPhaseSolverConfig(PxClothFabricPhaseType::eSHEARING);
+	//		config.solverType = PxClothPhaseSolverConfig::eFAST;
+	//		config.stiffness = 0.75f;
+	//		cloth.setPhaseSolverConfig(PxClothFabricPhaseType::eSHEARING, config);
 
-			config = cloth.getPhaseSolverConfig(PxClothFabricPhaseType::eBENDING_ANGLE);
-			config.solverType = PxClothPhaseSolverConfig::eBENDING;
-			config.stiffness = 0.5f;
-			cloth.setPhaseSolverConfig(PxClothFabricPhaseType::eBENDING_ANGLE, config);
-		}
+	//		config = cloth.getPhaseSolverConfig(PxClothFabricPhaseType::eBENDING_ANGLE);
+	//		config.solverType = PxClothPhaseSolverConfig::eBENDING;
+	//		config.stiffness = 0.5f;
+	//		cloth.setPhaseSolverConfig(PxClothFabricPhaseType::eBENDING_ANGLE, config);
+	//	}
+	return mCloth;
 	}
 
 	//Description

@@ -64,25 +64,6 @@ public:
 		driver->setTransform(video::ETS_WORLD, AbsoluteTransformation);
 		driver->drawVertexPrimitiveList( &Vertices[0],4, &indices[0],4, video::EVT_STANDARD, scene::EPT_TRIANGLES, video::EIT_16BIT);
 	}
-	virtual PxQuat* getPose()
-	{
-		PxMat33 mat;
-		irr::f32 fM[16];
-		fM[0] = mat.column0.x;
-		fM[1] = mat.column0.y;
-		fM[2] = mat.column0.z;
-		fM[4] = mat.column1.x;
-		fM[5] = mat.column1.y;
-		fM[6] = mat.column1.z;
-		fM[8] = mat.column2.x;
-		fM[9] = mat.column2.y;
-		fM[10] = mat.column2.z;
-		irrM.setM( fM );
-
-		PxQuat* qu = new PxQuat();
-		qu->createIdentity();
-		return qu;
-	}
 
 	virtual const core::aabbox3d<irr::f32>& getBoundingBox() const { return box;}
 	virtual irr::u32 getMaterialCount() const { return 1;}
