@@ -271,13 +271,13 @@ public:
 	//either static or rigid: kinematic or ragdoll
 	//Parameter 1 is enumeration of shapes available, DO NOT USE eAC_COUNT, Parameter 2 is position where new actor should be spawned.
 	//TO DO
-	virtual physx::PxRigidDynamic* CreateActor( E_ACTOR_CREATION Creation, PxVec3& position)
+	virtual physx::PxRigidDynamic* CreateActor( E_ACTOR_CREATION Creation, PxVec3& position, PxVec3& target = PxVec3(0))
 	{
 		mCreation = Creation;
 		mPhysX->getMaterials( &mMaterial, 1 );
 		density = PxReal(500.f);
 		mActor = mPhysX->createRigidDynamic( physx::PxTransform( position ) );
-		PxVec3 velocity(0,0,0);
+		PxVec3 velocity = target*100;
 		PxReal sphereRadius(5.f);
 		switch( mCreation )
 		{
@@ -368,7 +368,11 @@ public:
 	virtual void moveIn(){mActor->addForce(		PxVec3(0.f,0.f,-100.f), physx::PxForceMode::eIMPULSE );}
 	virtual void moveForward(){mActor->addForce( PxVec3(0.f,0.f,100.f), physx::PxForceMode::eIMPULSE );}
 
-	virtual void joinActors(physx::PxRigidActor *actor1,physx::PxRigidDynamic* actor2) // Leo 
+	//Description
+	//For correct usage please pass actors like this:
+	// ->actor2
+	// ->actor1
+	virtual void joinActors(physx::PxRigidActor* actor1,physx::PxRigidDynamic* actor2) // Leo 
 	{
 		PxJointLimitPair* limitPair = new PxJointLimitPair(-PxPi/4, PxPi/4, 0.1f);
 		limitPair->spring = 10.f;
@@ -605,7 +609,7 @@ public:
 			PxToolkit::MemoryInputData input(buf.getData(), buf.getSize() );
 			pyr = mPhysX->createConvexMesh( input );
 			pyrAct = mPhysX->createRigidDynamic( physx::PxTransform( position, orientation) );
-			pyrAct->setMass( 100.f );
+			pyrAct->setMass( 500.f );
 			pyrShape = pyrAct->createShape( physx::PxConvexMeshGeometry( pyr ), *mMaterial );// remember to give dereferenced pointer for materials ^_^
 			pyrAct->userData = verts;
 			pyrShape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);

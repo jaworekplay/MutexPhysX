@@ -69,6 +69,7 @@ public:
 		driverType = irr::video::EDT_OPENGL;//using OpenGL driver
 		device = createDevice(driverType,size,16,false,false,false,rec);
 		smgr = device->getSceneManager();
+		smgr->getRootSceneNode()->setPosition(vector3df(0));
 		driver = device->getVideoDriver();
 		m_rootNode = smgr->getRootSceneNode();
 		m_pos = m_rot = irr::core::vector3df(0,0,0);
@@ -86,10 +87,10 @@ public:
 		/////////////////////////////////////////////////
 		//addChassis();
 		//addSpheres();
-		addBlock();
+		addBlock(vector3df(0,0,0));
 		PhysXWall();
-		addPhysXObject(vector3df(0));
-		addPhysXObject(vector3df(15,0,0),pyramid[1]->getRotation() );
+		//addPhysXObject(vector3df(0));
+		//addPhysXObject(vector3df(15,0,0),pyramid[1]->getRotation() );
 		addCamera();
 		
 		//this needs to wrapped so we can use it inside the class without use of the id statement
@@ -251,9 +252,8 @@ public:
 
 	virtual bool PhysXWall()
 	{
-		startNode = new CCustomNode( smgr->getRootSceneNode(), smgr);
 		this->m_pxNode = new CPhysXNode(*mute, pyramid); 
-		this->m_pxNode->createBlock(vector3df(0),vector3df(0));
+		this->m_pxNode->createBlock(vector3df(50,20,100),vector3df(0));
 		return true;
 	}
 
@@ -287,7 +287,7 @@ public:
 		u32 frames=0;
 		while(device->run())
 		{
-			mute->advance(2.f);
+			mute->advance(0.0005f);
 			driver->beginScene( true, true, irr::video::SColor(0,100,100,100) );
 			smgr->drawAll();
 			device->getGUIEnvironment()->drawAll();
@@ -299,11 +299,15 @@ public:
 				str += (s32)driver->getFPS();
 				str += L" Objects: ";
 				str += driver->getPrimitiveCountDrawn();
-
 				device->setWindowCaption(str.c_str());
 				frames=0;
+				
 			//mute->joinActors( mute->CreatePyramid(), mute->CreatePyramid() );
-
+			if( rec->isMouseButtonPressed( EMouseButton::MButton_LEFT ) )
+			{
+				new CPhysXNode( mute->CreateActor(E_ACTOR_CREATION::eAC_Sphere, PxVec3(cam->getPosition().X,cam->getPosition().Y, cam->getPosition().Z), PxVec3(cam->getTarget().X,cam->getTarget().Y,cam->getTarget().Z)),smgr,*mute );
+			}
+			
 			if( rec->isKeyDown( irr::KEY_KEY_A ) )
 				mute->moveLeft();
 			if( rec->isKeyDown( irr::KEY_KEY_D ) )
@@ -334,6 +338,7 @@ public:
 				for(int i = 0; i < SPH; ++i)
 					m_Spheres[i]->updatePos();
 			}
+			this->m_pxNode->updatePosCustomNode();
 		}
 		return true;
 	}

@@ -8,7 +8,7 @@
 using namespace irr;
 using namespace physx;
 
-class CPhysXNode
+class CPhysXNode:protected CMutex
 {
 private:
 	//------------------PHYSX STUFF-----------
@@ -48,7 +48,7 @@ public:
 		case eAC_Capsule:
 			break;
 		case eAC_Convex:
-			irrCustom = new CCustomNode(smgr->getRootSceneNode(),smgr,4,-1);
+			//irrCustom = new CCustomNode(smgr->getRootSceneNode(),smgr,4,-1);
 			break;
 			//leo
 		case eAC_Face:
@@ -85,11 +85,7 @@ public:
 		mPos.X = pose.p.x;
 		mPos.Y = pose.p.y;
 		mPos.Z = pose.p.z;
-		/*if( typeid( irrActor ).name() == "class irr::scene::ISceneNode *" )*/
 		irrActor->setPosition(mPos);
-		/*else
-			irrCustom->setPosition(pos);
-*/
 		PxMat33 mat = PxMat33::PxMat33( pxActor->getGlobalPose().q ); //this code is from google code thing, because we use Rigid Dynamic already we don't need to static cast ;)
 		irr::core::matrix4 irrM;
 		irr::f32 fM[16];
@@ -108,29 +104,9 @@ public:
 	}
 	virtual bool updatePosCustomNode()
 	{
-		pose = pxActor->getGlobalPose();
-		mPos.X = pose.p.x;
-		mPos.Y = pose.p.y;
-		mPos.Z = pose.p.z;
-
-		irrCustom->setPosition(mPos);
-
-		PxMat33* mat = new PxMat33( pxActor->getGlobalPose().q ); //this code is from google code thing, because we use Rigid Dynamic already we don't need to static cast ;)
+		PxMat33* mat ;//= new PxMat33( pxActor->getGlobalPose().q ); //this code is from google code thing, because we use Rigid Dynamic already we don't need to static cast ;)
 		irr::core::matrix4 irrM;
 		irr::f32 fM[16];
-		fM[0] = mat->column0.x;
-		fM[1] = mat->column0.y;
-		fM[2] = mat->column0.z;
-		fM[4] = mat->column1.x;
-		fM[5] = mat->column1.y;
-		fM[6] = mat->column1.z;
-		fM[8] = mat->column2.x;
-		fM[9] = mat->column2.y;
-		fM[10] = mat->column2.z;
-		irrM.setM( fM );
-
-		irrCustom->setRotation( irrM.getRotationDegrees() );
-
 		if( Cube )
 		{
 			for( int i = 0; i < 12; ++i)
@@ -152,6 +128,7 @@ public:
 				fM[8] = mat->column2.x;
 				fM[9] = mat->column2.y;
 				fM[10] = mat->column2.z;
+
 				irrM.setM( fM );
 
 				pyramid[i]->setRotation( irrM.getRotationDegrees() );
@@ -323,8 +300,10 @@ public:
 				cube[11]->setGlobalPose(*temp);
 
 				rot.Y = 0;
-				delete temp;
-
+				pos.x = 0;
+				pos.y = 0;
+				pos.z = 0;
+				//delete temp;
 		//------------IRRLICHT PART----------------------------
 		
 		return true;

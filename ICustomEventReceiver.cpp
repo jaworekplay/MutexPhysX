@@ -219,6 +219,7 @@ bool ICustomEventReceiver::OnEvent( const irr::SEvent& event )
 						m_EMouse[MButton_LEFT] = MButton_PRESSED;
 					else
 						m_EMouse[MButton_LEFT] = MButton_DOWN;
+					std::cout << "L button down\n";
 					break;
 				}
 
