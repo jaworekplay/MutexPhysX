@@ -299,7 +299,17 @@ public:
 	virtual bool addPlayerCharacter()
 	{
 		//let's start with head
-		physicsActor[eHEAD] = new CPhysXNode(mute->CreateActor(eAC_Sphere, PxVec3(0)), smgr, *mute);
+		physicsActor[eHEAD] = new CPhysXNode(mute->CreateActor(eAC_Sphere, PxVec3(0,25,0)), smgr, *mute);
+		physicsActor[eNECK] = new CPhysXNode(mute->CreateActor(eAC_Capsule, PxVec3(0,22,0)),smgr, *mute);
+		physicsActor[eR_ARM] = new CPhysXNode(mute->CreateActor(eAC_Capsule, PxVec3(0,22,0)),smgr, *mute);
+		physicsActor[eR_FORE_ARM] = new CPhysXNode(mute->CreateActor(eAC_Capsule, PxVec3(0,20,0)),smgr, *mute);
+		physicsActor[eL_ARM] = new CPhysXNode( mute->CreateActor(eAC_Capsule, PxVec3(0,22,0)),smgr, *mute);
+		physicsActor[eL_FORE_ARM] = new CPhysXNode( mute->CreateActor(eAC_Capsule, PxVec3(0,20,0)),smgr, *mute);
+		physicsActor[eTORSO] = new CPhysXNode( mute->CreateActor( eAC_Box, PxVec3(0,22,0)),smgr, *mute);
+		physicsActor[eR_UPPER_LEG] = new CPhysXNode( mute->CreateActor(eAC_Capsule, PxVec3(0,12,0)),smgr, *mute);
+		physicsActor[eR_LOWER_LEG] = new CPhysXNode( mute->CreateActor(eAC_Capsule, PxVec3(0,6,0)),smgr, *mute);
+		physicsActor[eL_UPPER_LEG] = new CPhysXNode( mute->CreateActor( eAC_Capsule, PxVec3(0,12,0)), smgr, *mute);
+		physicsActor[eL_LOWER_LEG] = new CPhysXNode( mute->CreateActor( eAC_Capsule, PxVec3(0,6,0)), smgr, *mute);
 		return true;
 	}
 	virtual bool render()
