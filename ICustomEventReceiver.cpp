@@ -216,10 +216,13 @@ bool ICustomEventReceiver::OnEvent( const irr::SEvent& event )
 				case irr::EMIE_LMOUSE_PRESSED_DOWN:
 				{
 					if(m_EMouse[MButton_LEFT] == MButton_UP || m_EMouse[MButton_LEFT] == MButton_RELEASED)
-						m_EMouse[MButton_LEFT] = MButton_PRESSED;
-					else
+					{
 						m_EMouse[MButton_LEFT] = MButton_DOWN;
-					std::cout << "L button down\n";
+						std::cout << "L button down\n";
+					}
+					else
+						m_EMouse[MButton_LEFT] = MButton_PRESSED;
+					return true;
 					break;
 				}
 
@@ -235,9 +238,9 @@ bool ICustomEventReceiver::OnEvent( const irr::SEvent& event )
 				case irr::EMIE_MMOUSE_PRESSED_DOWN:
 				{
 					if(m_EMouse[MButton_MIDDLE] == MButton_UP || m_EMouse[MButton_MIDDLE] == MButton_RELEASED)
-						m_EMouse[MButton_MIDDLE] = MButton_PRESSED;
-					else
 						m_EMouse[MButton_MIDDLE] = MButton_DOWN;
+					else
+						m_EMouse[MButton_MIDDLE] = MButton_PRESSED;
 					break;
 				}
 

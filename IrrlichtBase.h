@@ -5,6 +5,22 @@ using namespace irr;
 using namespace std;
 using namespace physx;
 
+enum eBodyParts
+{
+	eHEAD = 0,
+	eNECK,
+	eL_ARM,
+	eL_FORE_ARM,
+	eR_ARM,
+	eR_FORE_ARM,
+	eTORSO,
+	eL_UPPER_LEG,
+	eL_LOWER_LEG,
+	eR_UPPER_LEG,
+	eR_LOWER_LEG
+};
+
+
 class CIrrlichtBase
 {
 private:
@@ -42,20 +58,6 @@ private:
 	PxVec3 CamPosPhysX;
 	physx::PxRigidDynamic* startPhysXNode;
 	scene::IVolumeLightSceneNode* m_light;
-	enum eBodyParts
-	{
-		eHEAD = 0,
-		eNECK,
-		eL_ARM,
-		eL_FORE_ARM,
-		eR_ARM,
-		eR_FORE_ARM,
-		eTORSO,
-		eL_UPPER_LEG,
-		eL_LOWER_LEG,
-		eR_UPPER_LEG,
-		eR_LOWER_LEG
-	};
 public:
 	irr::scene::ISceneManager* smgr;
 	irr::video::IVideoDriver* driver;
@@ -89,7 +91,6 @@ public:
 		/////////////////////////////////////////////////
 		//addChassis();
 		//addSpheres();
-		addBlock(vector3df(0,0,0));
 		PhysXWall();
 		//addPhysXObject(vector3df(0));
 		//addPhysXObject(vector3df(15,0,0),pyramid[1]->getRotation() );
@@ -272,8 +273,10 @@ public:
 
 	virtual bool PhysXWall()
 	{
+		this->addBlock();
 		this->m_pxNode = new CPhysXNode(*mute, pyramid); 
-		this->m_pxNode->createBlock(vector3df(50,20,100),vector3df(0));
+		this->m_pxNode->createBlock(vector3df(0),vector3df(0));
+		//this->m_pxNode->createBlock(vector3df(0),vector3df(0));
 		return true;
 	}
 
@@ -314,10 +317,11 @@ public:
 	}
 	virtual bool render()
 	{
+		bool pressed = false;
 		u32 frames=0;
 		while(device->run())
 		{
-			mute->advance(0.0005f);
+			mute->advance(0.05f);
 			driver->beginScene( true, true, irr::video::SColor(0,100,100,100) );
 			smgr->drawAll();
 			device->getGUIEnvironment()->drawAll();
@@ -333,8 +337,11 @@ public:
 				frames=0;
 				
 			//mute->joinActors( mute->CreatePyramid(), mute->CreatePyramid() );
-			if( rec->isMouseButtonPressed( EMouseButton::MButton_LEFT ) )
+			if( rec->isMouseButtonDown( EMouseButton::MButton_LEFT ) )
 			{
+				pressed = true;
+				if( pressed )
+				{
 				m_vCPxObj.push_back( new CPhysXNode( mute->CreateActor(E_ACTOR_CREATION::eAC_Box, 
 																PxVec3(cam->getPosition().X,
 																cam->getPosition().Y, 
@@ -344,6 +351,8 @@ public:
 													cam->getTarget().Z).getNormalized()),
 											smgr,
 											*mute ));
+				pressed = false;
+				}
 				create = true;
 			}
 			
