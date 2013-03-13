@@ -2,26 +2,28 @@
 #include <irrlicht.h>
 #include "MutexPhysX.h"
 #include "CCustomNode.h"
+#include "IrrlichtBase.h"
 #define deg PxPi
 
 
 using namespace irr;
 using namespace physx;
 
-class CPhysXNode:protected CMutex
+class CIrrlichtBase;
+
+class CPhysXNode: protected CMutex
 {
 private:
 	//------------------PHYSX STUFF-----------
 	physx::PxRigidDynamic*	pxActor;
 	PxRigidDynamic*			cube[12];
 	physx::PxTransform		pose;
-	PxVec3					pos;
 	PxTransform*			temp;
 	//------------------IRRLICHT STUFF--------
 	irr::scene::ISceneNode* irrActor;
 	irr::core::vector3df	mPos;
-	irr::core::vector3df	rot;
 	scene::ISceneManager*   mSmgr;
+	video::ITexture*		mTexture;
 	//------------------CUSTOM NODE-----------
 	CCustomNode* irrCustom;
 	CCustomNode* pyramid[12];
@@ -37,10 +39,12 @@ public:
 		pxActor = physicsActor;
 		shape = (int)pxActor->userData;
 		mute = &mutex;
+		
 		switch( shape )
 		{
 		case eAC_Sphere:
 			irrActor = smgr->addSphereSceneNode();
+			//irrActor->setMaterialTexture(0, driver->getTexture("D:\media\wall.bmp"));
 			break;
 		case eAC_Box:
 			irrActor = smgr->addCubeSceneNode(5.f);
@@ -107,13 +111,14 @@ public:
 		PxMat33* mat ;//= new PxMat33( pxActor->getGlobalPose().q ); //this code is from google code thing, because we use Rigid Dynamic already we don't need to static cast ;)
 		irr::core::matrix4 irrM;
 		irr::f32 fM[16];
+		mPos.X = mPos.Y = mPos.Z = 0;
 		if( Cube )
 		{
 			for( int i = 0; i < 12; ++i)
 			{
 				pose = cube[i]->getGlobalPose();
 				mPos.X = pose.p.x;
-				mPos.Y = pose.p.x;
+				mPos.Y = pose.p.y;
 				mPos.Z = pose.p.z;
 				pyramid[i]->setPosition(mPos);
 				
@@ -140,11 +145,14 @@ public:
 	virtual bool createBlock(irr::core::vector3df& position, irr::core::vector3df& rotation)
 	{
 		Cube = true;
+		PxVec3	pos(0);
+		irr::core::vector3df	rot(0);
 				//--------------Base
 				rot.Y = deg/4;//45 degrees
 				cube[0] = mute->CreatePyramid(pos,rot);
 				rot.Y = deg + deg/4;//135
 				cube[1] = mute->CreatePyramid(pos,rot);
+				//mute->joinActors( cube[1],cube[0]);
 
 				//---------------Top
 				pos.y = 14;//rise the level
@@ -165,6 +173,7 @@ public:
 				rot.Z = 0;//nil the axis
 
 				cube[3] = mute->CreatePyramid(pos,rot);//initial rotation
+				
 
 				rot.X = 0;//nil the axis
 				rot.Y = deg + deg/2 + deg/4;//indicate
@@ -172,6 +181,7 @@ public:
 				temp->q = cube[3]->getGlobalPose().q;
 				temp->q *= mute->QuatFromAxisAngle(rot,rot.Y);
 				cube[3]->setGlobalPose(*temp);
+				//mute->joinActors( cube[2],cube[3]);
 
 				//----------------------Right
 				rot.Y = 0;//nil last used axis
@@ -200,6 +210,7 @@ public:
 				temp = &cube[5]->getGlobalPose();
 				temp->q *= mute->QuatFromAxisAngle(rot,rot.Y);
 				cube[5]->setGlobalPose(*temp);
+				//mute->joinActors( cube[4],cube[5]);
 
 				rot.Y = 0;
 
@@ -227,6 +238,7 @@ public:
 				temp = &cube[7]->getGlobalPose();
 				temp->q *= mute->QuatFromAxisAngle(rot,rot.Y);
 				cube[7]->setGlobalPose(*temp);
+				//mute->joinActors( cube[6],cube[7]);
 
 				rot.Y = 0;
 				//Front
@@ -266,6 +278,7 @@ public:
 
 				temp->q *= mute->QuatFromAxisAngle(rot,rot.Y);
 				cube[9]->setGlobalPose(*temp);
+				//mute->joinActors( cube[8],cube[9]);
 
 				rot.Y = 0;
 				//Back
@@ -298,14 +311,13 @@ public:
 				temp = &cube[11]->getGlobalPose();
 				temp->q *= mute->QuatFromAxisAngle(rot,rot.Y);
 				cube[11]->setGlobalPose(*temp);
+				//mute->joinActors( cube[10],cube[11]);
 
 				rot.Y = 0;
 				pos.x = 0;
 				pos.y = 0;
 				pos.z = 0;
-				//delete temp;
-		//------------IRRLICHT PART----------------------------
-		
+				//delete temp;	
 		return true;
 	}
 	irr::scene::ISceneNode* getIrrNode() const { return irrActor; }

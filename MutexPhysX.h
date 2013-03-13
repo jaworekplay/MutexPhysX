@@ -277,7 +277,7 @@ public:
 		mPhysX->getMaterials( &mMaterial, 1 );
 		density = PxReal(500.f);
 		mActor = mPhysX->createRigidDynamic( physx::PxTransform( position ) );
-		PxVec3 velocity = target*100;
+		PxVec3 velocity = target;
 		PxReal sphereRadius(5.f);
 		switch( mCreation )
 		{
@@ -285,10 +285,12 @@ public:
 			mShape = mActor->createShape( physx::PxSphereGeometry( sphereRadius ), *mMaterial );
 			std::cout << "Created A Sphere\n";
 			mActor->userData = (void*)mCreation;
+			density = 100.f;
 			break;
 		case eAC_Box:
 			mShape = mActor->createShape(physx::PxBoxGeometry(5.f,5.f,5.f),*mMaterial );
 			mActor->userData = (void*)mCreation;
+			density = 150.f;
 			break;
 		case eAC_Capsule:
 			mShape = mActor->createShape(physx::PxCapsuleGeometry(5.f,2.5f), *mMaterial );

@@ -26,6 +26,7 @@ public:
 		material.Wireframe = false;
 		material.Lighting  = false;
 		material.BackfaceCulling = true;
+		material.Shininess = 40.f;
 
 		u32 r,g,b;
 		r = 150;

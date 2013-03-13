@@ -1,7 +1,5 @@
 #pragma once
-#include "MutexPhysX.h"
 #include "CPhysXNode.h"
-#include "CCustomNode.h"
 
 using namespace irr;
 using namespace std;
@@ -23,6 +21,8 @@ private:
 	irr::core::vector3df			m_rot;
 	irr::core::vector3df			m_scale;
 	std::vector<irr::scene::ISceneNode*> m_vNPC;
+	std::vector<CPhysXNode*>			m_vCPxObj;
+	std::vector<CPhysXNode*>::iterator m_vIt;
 	std::vector<physx::PxActor*>	m_vPxNPC;
 	std::vector<irr::scene::ISceneNode*> m_vObj;
 	std::vector<physx::PxRigidStatic*> m_vPxObj;
@@ -62,6 +62,7 @@ public:
 	AudioEngine* audio;
 public:
 	CPhysXNode* m_pxNode;
+	bool create;
 public:
 	CIrrlichtBase(CMutex& mutex, ICustomEventReceiver& passRec):rec(&passRec),mute(&mutex)
 	{
@@ -82,6 +83,7 @@ public:
 		files->addFolderFileArchive("D:\\media");
 		for( int i = 0; i < SPH; ++i )
 			m_Spheres[i] = NULL;
+		create = false;
 		//addScene();
 		//createWall(1,8);
 		/////////////////////////////////////////////////
@@ -94,6 +96,24 @@ public:
 		addCamera();
 		
 		//this needs to wrapped so we can use it inside the class without use of the id statement
+	}
+	CIrrlichtBase()
+	{
+		size = irr::core::dimension2d<irr::u32>(1024,768);
+		driverType = irr::video::EDT_OPENGL;//using OpenGL driver
+		device = createDevice(driverType,size,16,false,false,false,rec);
+		smgr = device->getSceneManager();
+		smgr->getRootSceneNode()->setPosition(vector3df(0));
+		driver = device->getVideoDriver();
+		m_rootNode = smgr->getRootSceneNode();
+		m_pos = m_rot = irr::core::vector3df(0,0,0);
+		m_scale = irr::core::vector3df(1,1,1);
+		cmgr = smgr->getSceneCollisionManager();
+		rec->startEventProcess();
+		
+		files = device->getFileSystem();
+		files->addFileArchive("D:\\media");
+		files->addFolderFileArchive("D:\\media");
 	}
 	~CIrrlichtBase()
 	{
@@ -305,7 +325,16 @@ public:
 			//mute->joinActors( mute->CreatePyramid(), mute->CreatePyramid() );
 			if( rec->isMouseButtonPressed( EMouseButton::MButton_LEFT ) )
 			{
-				new CPhysXNode( mute->CreateActor(E_ACTOR_CREATION::eAC_Sphere, PxVec3(cam->getPosition().X,cam->getPosition().Y, cam->getPosition().Z), PxVec3(cam->getTarget().X,cam->getTarget().Y,cam->getTarget().Z)),smgr,*mute );
+				m_vCPxObj.push_back( new CPhysXNode( mute->CreateActor(E_ACTOR_CREATION::eAC_Box, 
+																PxVec3(cam->getPosition().X,
+																cam->getPosition().Y, 
+																cam->getPosition().Z),
+											PxVec3(cam->getTarget().X,
+													cam->getTarget().Y,
+													cam->getTarget().Z).getNormalized()),
+											smgr,
+											*mute ));
+				create = true;
 			}
 			
 			if( rec->isKeyDown( irr::KEY_KEY_A ) )
@@ -339,6 +368,9 @@ public:
 					m_Spheres[i]->updatePos();
 			}
 			this->m_pxNode->updatePosCustomNode();
+			if(create)
+				for(int j = 0; j < m_vCPxObj.size(); ++j)
+					m_vCPxObj[j]->updatePos();
 		}
 		return true;
 	}
