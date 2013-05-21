@@ -1,0 +1,122 @@
+Sandrail-LS-shift
+{
+	trigger_source 		shift
+	start_sound		unpitched 		Sandrail-LS-Turbo-Popoff.wav
+ 	stop_sound		unpitched 		default_shift.wav
+}
+
+Sandrail-LS-shift2
+{
+	trigger_source 		shift
+	start_sound		unpitched 		default_shift.wav
+}
+Sandrail-LS-Engine
+{
+	trigger_source		engine
+	pitch_source		engine_rpm
+	sound			1400.0			Sandrail-LS-Engine-Idle.wav
+	sound			2000.0			Sandrail-LS-Engine-Low.wav
+	sound			2600.0			Sandrail-LS-Engine-Med.wav
+	sound			3400.0			Sandrail-LS-Engine-Med2.wav
+	sound			3900.0			Sandrail-LS-Engine-High.wav
+	sound			5200.0			Sandrail-LS-Engine-Overrev.wav
+}
+
+Sandrail-LS-Engine2
+{
+	trigger_source		engine
+	pitch_source		engine_rpm
+	sound			1400.0			Sandrail-LS-Engine-Idle.wav
+	sound			2000.0			Sandrail-LS-Engine-Low.wav
+	sound			2600.0			Sandrail-LS-Engine-Med.wav
+	sound			3500.0			Sandrail-LS-Engine-Med2.wav
+	sound			4100.0			Sandrail-LS-Engine-High.wav
+	sound			5400.0			Sandrail-LS-Engine-Overrev.wav
+}
+
+
+Sandrail-LS-Injector
+{
+	trigger_source		engine
+	pitch_source		engine_rpm
+	gain_source		injector_ratio
+	gain_factors		0.2			0.3			0.042
+	sound			1500			default_diesel_force.wav
+}
+ 
+Sandrail-LS-Turbo
+{
+	trigger_source 		engine
+	pitch_source		turbo_rpm
+	gain_source		turbo_rpm
+	gain_factors		0.0			0.0			4.5E-12
+	sound			190000			Sandrail-LS-turbo.wav
+}
+
+Sandrail-LS-starter
+{
+	trigger_source	starter
+	start_sound	unpitched default_starter_start.wav
+	sound		unpitched default_starter.wav
+	stop_sound	unpitched default_starter_stop.wav
+}
+ 
+tracks/default_pump
+{
+	trigger_source	pump
+	pitch_source	pump_rpm
+	start_sound	660.0 default_pump_start.wav
+	sound		660.0 default_pump.wav
+	stop_sound	660.0 default_pump_stop.wav
+}
+ 
+Sandrail-LS-brakes
+{
+	trigger_source 		brake
+	sound			unpitched		Sandrail-LS-brake.wav
+}
+ 
+tracks/default_parkbrakes
+{
+	trigger_source parking_brake
+	start_sound unpitched default_parking_brakes.wav
+}
+
+tracks/default_horn
+{
+	trigger_source		horn
+	start_sound		unpitched 			Sandrail-LS-horn-start.wav
+	sound			unpitched 			Sandrail-LS-horn.wav
+	stop_sound		unpitched			Sandrail-LS-horn-stop.wav
+}
+
+tracks/default_screetch
+{
+	trigger_source screetch
+	gain_source		screetch
+	sound unpitched default_screetch.wav
+}
+
+tracks/default_break
+{
+	trigger_source	break
+	pitch_source	break
+	pitch_factors	1.0	1.0
+	start_sound 1.0 default_break.wav
+}
+
+tracks/default_creak
+{
+	trigger_source	creak
+	pitch_source	creak
+	pitch_factors	1.0	0.2
+	gain_source		creak
+	gain_factors	0.3	1.0
+	start_sound 1.0 default_creak.wav
+}
+
+tracks/default_gear_slide
+{
+	trigger_source	gear_slide
+	start_sound unpitched default_gear_slide.wav
+}

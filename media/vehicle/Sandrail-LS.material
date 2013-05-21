@@ -1,0 +1,666 @@
+material Sandrail-LS-exhaust
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			lighting off
+			scene_blend alpha_blend
+			alpha_rejection greater 2
+			depth_write off
+			texture_unit
+			{
+				texture Sandrail-LS-smoke.png
+				tex_address_mode clamp
+			}
+		}
+	}
+}
+
+material Sandrail-LS-chassis
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.54 0.54 0.54 1
+			diffuse 0.54 0.54 0.54 1
+			specular 0.3 0.3 0.3 1 10
+			alpha_rejection greater 128
+			cull_hardware none
+		        cull_software none
+			texture_unit
+			{
+				texture Sandrail-LS-chassis.png
+			}
+			texture_unit
+				{
+				   texture Sandrail-LS-chassis-envi.png
+				   env_map spherical
+			   	}
+		}
+	}
+}
+
+material Sandrail-LS-chassis2
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.54 0.54 0.54 1
+			diffuse 0.54 0.54 0.54 1
+			specular 0.3 0.3 0.3 1 10
+			alpha_rejection greater 128
+			cull_hardware none
+		        cull_software none
+			scene_blend alpha_blend
+			texture_unit
+			{
+				texture Sandrail-LS-chassis.png
+			}
+		}
+	}
+}
+
+material Sandrail-LS-chassis3
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.34 0.34 0.34 1
+			diffuse 0.34 0.34 0.34 1
+			specular 0.45 0.45 0.45 1 10
+			alpha_rejection greater 128
+			cull_hardware none
+		        cull_software none  
+			texture_unit
+			{
+				texture Sandrail-LS-chassis.png
+			}
+			texture_unit
+			{
+				texture Sandrail-LS-chassis-envi.png
+				env_map spherical
+		   	}
+		}
+	}
+}
+
+material Monster-LS-chassis-chrome
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.34 0.34 0.34 1
+			diffuse 0.34 0.34 0.34 1
+			specular 0.85 0.85 0.85 1 10
+			alpha_rejection greater 128
+			cull_hardware none
+		        cull_software none  
+			texture_unit
+			{
+				texture Monster-LS-chassis.png
+			}
+			texture_unit
+			{
+			   	texture Sandrail-LS-chassis-envi.png
+				env_map spherical
+		   	}
+		}
+	}
+}
+
+material Monster-LS-chassis
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.54 0.54 0.54 1
+			diffuse 0.54 0.54 0.54 1
+			specular 0.6 0.6 0.6 1 10
+			alpha_rejection greater 128
+			cull_hardware none
+		        cull_software none  
+			texture_unit
+			{
+				texture Monster-LS-chassis.png
+			}
+			texture_unit
+			{
+				texture Sandrail-LS-chassis-envi2.png
+				env_map spherical
+		   	}
+		}
+	}
+}
+
+material Monster-LS-chassis2
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.74 0.74 0.74 1
+			diffuse 0.74 0.74 0.74 1
+			specular 0.3 0.3 0.3 1 10
+			alpha_rejection greater 32
+			texture_unit
+			{
+				texture Monster-LS-chassis.png
+			}
+			texture_unit
+				{
+				   texture Sandrail-LS-chassis-envi.png
+				   env_map spherical
+			   	}
+		}
+	}
+}
+
+material Monster-LS-chassis-dull
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.44 0.44 0.44 1
+			diffuse 0.44 0.44 0.44 1
+			specular 0.25 0.25 0.25 1 10
+			alpha_rejection greater 128
+			cull_hardware none
+		        cull_software none  
+			texture_unit
+			{
+				texture Monster-LS-chassis.png
+			}
+		}
+	}
+}
+
+material Sandrail-LS-chassis-chrome
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.64 0.64 0.64 1
+			diffuse 0.24 0.24 0.24 1
+			specular 0.8 0.8 0.8 1 10
+			alpha_rejection greater 128
+			cull_hardware none
+		        cull_software none  
+			texture_unit
+			{
+				texture Sandrail-LS-tec.png
+			}
+			texture_unit
+			{
+				texture Sandrail-LS-chassis-envi.png
+				env_map spherical
+			}
+		}
+	}
+}
+
+material Sandrail-LS-rubber
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.34 0.34 0.34 1
+			diffuse 0.34 0.34 0.34 1
+			specular 0.05 0.05 0.05 1 10
+			alpha_rejection greater 128
+		        cull_hardware none
+		        cull_software none
+			texture_unit
+			{
+				texture Sandrail-LS-chassis.png
+			}
+		}
+	}
+}
+
+material Sandrail-LS-driver
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.24 0.24 0.24 1
+			diffuse 0.84 0.84 0.84 1
+			specular 0.1 0.1 0.1 1 10
+			alpha_rejection greater 128
+		        cull_hardware none
+		        cull_software none  
+			texture_unit
+			{
+				texture Sandrail-LS-driver.png
+			}
+		}
+	}
+}
+
+material Sandrail-LS-driver3
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.39 0.34 0.34 1
+			diffuse 0.39 0.34 0.34 1
+			specular 0.45 0.45 0.45 1 10
+			alpha_rejection greater 128
+			texture_unit
+			{
+				texture Sandrail-LS-driver.png
+			}
+			texture_unit
+			{
+				texture Sandrail-LS-chassis-envi.png
+				env_map spherical
+				colour_op_ex blend_manual src_texture src_current 0.01
+		   	}
+		}
+	}
+}
+
+material Sandrail-LS-driver2
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.39 0.34 0.34 1
+			diffuse 0.39 0.34 0.34 1
+			specular 0.45 0.45 0.45 1 10
+			alpha_rejection greater 128
+			texture_unit
+			{
+				texture Sandrail-LS-driver.png
+			}
+			texture_unit
+			{
+				texture Sandrail-LS-chassis-envi.png
+				env_map spherical
+		   	}
+		}
+	}
+}
+
+
+material Sandrail-LS-reardamper
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.74 0.74 0.74 1
+			diffuse 0.24 0.24 0.24 1
+			specular 0.9 0.9 0.9 1 10
+			alpha_rejection greater 128
+			texture_unit
+			{
+				texture Sandrail-LS-chassis.png
+			}
+			texture_unit
+			{
+				texture Sandrail-LS-chassis-envi2.png
+				env_map spherical
+		   	}
+		}
+	}
+}
+
+material Sandrail-LS-rearspring
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.3 0.3 0.3 1
+			diffuse 0.84 0.84 0.84 1
+			specular 0.5 0.5 0.5 1 10
+			alpha_rejection greater 128
+			texture_unit
+			{
+				texture Sandrail-LS-rearspring.png
+			}
+		}
+	}
+}
+
+material Sandrail-LS-rearspring2
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.3 0.3 0.3 1
+			diffuse 0.84 0.84 0.84 1
+			specular 0.5 0.5 0.5 1 10
+			alpha_rejection greater 128
+			texture_unit
+			{
+				texture Sandrail-LS-chassis.png
+			}
+		}
+	}
+}
+
+material Sandrail-LS-spoiler
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.3 0.3 0.3 1
+			diffuse 0.54 0.54 0.54 1
+			specular 0.6 0.6 0.6 1 10
+			alpha_rejection greater 128
+			texture_unit
+			{
+				texture Sandrail-LS-spoiler.png
+			}
+		}
+	}
+}
+
+
+material Sandrail-LS-wheel
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 0
+			depth_write off
+			texture_unit
+			{
+				texture Sandrail-LS-wheel.dds
+	                }
+		}
+		
+	}
+}
+
+material Sandrail-LS-tec-dull
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.64 0.64 0.64 1
+			diffuse 0.6 0.6 0.6 1
+			specular 0.25 0.25 0.25 1 10
+			alpha_rejection greater 128
+			texture_unit
+			{
+				texture Sandrail-LS-tec.png
+			}
+		}
+	}
+}
+
+material Sandrail-LS-tec-dull2
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.69 0.64 0.64 1
+			diffuse 0.55 0.5 0.35 1
+			specular 0.35 0.35 0.35 1 10
+			alpha_rejection greater 128
+			texture_unit
+			{
+				texture Sandrail-LS-tec.png
+			}
+		}
+	}
+}
+
+material Sandrail-LS-tec-dull3
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.49 0.49 0.49 1
+			diffuse 0.4 0.4 0.4 1
+			specular 0.15 0.15 0.15 1 10
+			alpha_rejection greater 128
+			texture_unit
+			{
+				texture Sandrail-LS-tec.png
+			}
+		}
+	}
+}
+
+material Sandrail-LS-mirrorambient
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.7 0.7 0.7 1
+			diffuse 0.25 0.25 0.25 1
+			specular 0.1 0.1 0.1 1 10
+			alpha_rejection greater 128
+			texture_unit
+			{
+				texture Sandrail-LS-mirrorambient.png
+			}
+		}
+	}
+}
+
+material Sandrail-LS-tec
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.59 0.54 0.54 1
+			diffuse 0.59 0.54 0.54 1
+			specular 0.35 0.35 0.35 1 10
+			alpha_rejection greater 128
+			texture_unit
+			{
+				texture Sandrail-LS-tec.png
+			}
+			texture_unit
+			{
+				texture Sandrail-LS-chassis-envi.png
+				env_map spherical
+			}
+		}
+	}
+}
+
+material Sandrail-LS-tec-chrome
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.64 0.64 0.64 1
+			diffuse 0.24 0.24 0.24 1
+			specular 0.8 0.8 0.8 1 10
+			alpha_rejection greater 128
+			texture_unit
+			{
+				texture Sandrail-LS-tec.png
+			}
+			texture_unit
+			{
+				texture Sandrail-LS-chassis-envi.png
+				env_map spherical
+			}
+		}
+	}
+}
+
+material Sandrail-LS-tec-chrome2
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.34 0.34 0.34 1
+			diffuse 0.24 0.24 0.24 1
+			specular 0.2 0.2 0.2 1 10
+			alpha_rejection greater 128
+			texture_unit
+			{
+				texture Sandrail-LS-chassis.png
+			}
+			texture_unit
+			{
+				texture Sandrail-LS-chassis-envi.png
+				env_map spherical
+			}
+		}
+	}
+}
+
+material Sandrail-LS-tec-chromegrey
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.14 0.14 0.14 1
+			diffuse 0.24 0.24 0.24 1
+			specular 0.7 0.7 0.7 1 10
+			alpha_rejection greater 128
+			texture_unit
+			{
+				texture Sandrail-LS-tec.png
+			}
+			texture_unit
+			{
+				texture Sandrail-LS-chassis-envi.png
+				env_map spherical
+				colour_op_ex blend_manual src_texture src_current 0.01
+		   	}
+		}
+	}
+}
+
+material Sandrail-LS-headlight
+{
+	technique
+	{
+		pass
+		{
+			emissive 1 1 1 0.3
+			texture_unit
+			{
+				anim_texture Sandrail-LS_headlight_material.png 2 0
+			}
+		}
+	}
+}
+
+material Sandrail-LS-brakelight1
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.64 0.64 0.64 1
+			diffuse 0.34 0.34 0.34 1
+			specular 0.5 0.5 0.5 1 10
+			alpha_rejection greater 128
+			emissive 1 1 1 0.3
+			texture_unit
+			{
+				anim_texture Sandrail-LS_brakelight_material.png 2 0
+			}
+		}
+	}
+}
+
+material Sandrail-LS-brakelight2
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.64 0.64 0.64 1
+			diffuse 0.34 0.34 0.34 1
+			specular 0.5 0.5 0.5 1 10
+			alpha_rejection greater 128
+			emissive 1 1 1 0.3
+			texture_unit
+			{
+				anim_texture Sandrail-LS_brakelight2_material.png 2 0
+			}
+		}
+	}
+}
+
+material Sandrail-LS-brakelight3
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.64 0.64 0.64 1
+			diffuse 0.34 0.34 0.34 1
+			specular 0.5 0.5 0.5 1 10
+			alpha_rejection greater 1
+			emissive 1 1 1 0.3
+			texture_unit
+			{
+				anim_texture Sandrail-LS_brakelight3_material.png 2 0
+			}
+		}
+	}
+}
+
+material Sandrail-LS-window
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 40
+			depth_write off
+			cull_hardware none
+		        cull_software none
+			texture_unit
+			{
+				texture Sandrail-LS-trans.png
+			}
+		   }
+	   }
+}
+
+material Sandrail-LS-decal
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.64 0.64 0.64 1
+			diffuse 0.64 0.64 0.64 1
+			specular 0.4 0.4 0.4 1 10
+			alpha_rejection greater 128
+			texture_unit
+			{
+				texture Sandrail-LS-decal.png
+			}
+		   }
+	   }
+}

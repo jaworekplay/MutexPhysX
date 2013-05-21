@@ -27,6 +27,7 @@
 #include "ICustomEventReceiver.h"
 
 using namespace physx;
+using namespace std;
 
 enum E_ACTOR_CREATION
 {
@@ -114,14 +115,10 @@ protected:
 	//------------------------------Materials
 	physx::PxMaterial*				mMaterial;
 	//------------------------------PxActors
-		//--------------------SPHERE-----------------
 		physx::PxRigidDynamic*			mActor;
 		physx::PxShape*					mShape;
-		/////////////////////////////////////////////
 		E_ACTOR_CREATION				mCreation;
-		//--------------------GENERIC ACTOR - CAN BE ANYTHING
-
-		/////////////////////////////////////////////////////
+		////////////////////////////////////
 	std::vector<physx::PxRigidActor*> mvActors;
 	std::vector<physx::PxRigidActor*>::iterator iterator;
 	physx::PxTransform				pose;
@@ -132,6 +129,7 @@ protected:
 	physx::PxRigidStatic*			plane;
 	//------------------------------Character Cotroller
 	physx::PxControllerManager*		ConManager;
+	physx::PxRigidDynamic*			playerShape;
 	//------------------------------Joint
 	physx::PxFixedJoint*			mJoint;
 	//------------------------------Cloth
@@ -157,9 +155,11 @@ protected:
 	physx::PxConvexMeshDesc			pyrDesc;
 	physx::PxShape*					pyrShape;
 	physx::PxRigidDynamic*			pyrAct;
-	int								m_verts[15];
-	//------------------------------Plane
-	physx::PxPlane*					m_plane;
+	//------------------------------Heightfield
+	physx::PxHeightFieldDesc*		hfDesc;
+	physx::PxHeightField*			hf;
+	physx::PxHeightFieldGeometry*	hfGeom;
+	physx::PxShape*					hfShape;
 public:
 	//Description
 	//Constructor
@@ -267,6 +267,38 @@ public:
 		return CMutex::mActor;
 	}
 	//Description
+	//Please do not use for now as this function is not yet developed.
+	virtual physx::PxHeightField* createHeightField()
+	{
+		//(PxHeightFieldSample*)alloc(sizeof(PxHeightFieldSample)*(numRows*numCols));
+
+		return hf;
+	}
+
+	//For now only a ccapsule equivalent of the real shape
+	//will see if the values of the height and the radius are correct
+	virtual physx::PxRigidDynamic* createPlayerShape()
+	{
+		density = 500.f;
+		PxRigidDynamic* aCapsuleActor = mPhysX->createRigidDynamic(PxTransform::createIdentity() );
+		aCapsuleActor->setRigidDynamicFlag( PxRigidDynamicFlag::eKINEMATIC, true );
+		PxTransform relativePose(PxQuat(PxHalfPi, physx::PxVec3(0,0,1)));
+		PxShape* aCapsuleShape = aCapsuleActor->createShape(PxCapsuleGeometry(physx::PxReal(20.f), physx::PxReal(30.f)), *mMaterial, relativePose);
+		PxRigidBodyExt::updateMassAndInertia(*aCapsuleActor, density);
+		mScene->addActor( *aCapsuleActor );
+		return aCapsuleActor;
+	}
+
+	bool setPlayerPosition( PxVec3 pos , physx::PxRigidDynamic& act)
+	{
+		pose = act.getGlobalPose();
+		pose.p.x = pos.x;
+		pose.p.y = pos.y;
+		pose.p.z = pos.z;
+		act.setGlobalPose( pose );
+		return true;
+	}
+	//Description
 	//This function will create an actor
 	//either static or rigid: kinematic or ragdoll
 	//Parameter 1 is enumeration of shapes available, DO NOT USE eAC_COUNT, Parameter 2 is position where new actor should be spawned.
@@ -288,7 +320,7 @@ public:
 			density = 100.f;
 			break;
 		case eAC_Box:
-			mShape = mActor->createShape(physx::PxBoxGeometry(5.f,5.f,5.f),*mMaterial );
+			mShape = mActor->createShape(physx::PxBoxGeometry(2.5f,2.5f,2.5f),*mMaterial );
 			mActor->userData = (void*)mCreation;
 			density = 150.f;
 			break;
@@ -306,7 +338,7 @@ public:
 			mActor->userData = (void*)mCreation;
 			break;
 		default:
-			printf("Unknown creation parameter, please specify a valid name\n");
+			std::printf("Unknown creation parameter, please specify a valid name\n");
 			break;
 		}
 		mActor->setMass( density );
@@ -315,27 +347,10 @@ public:
 		mActor->setLinearVelocity( velocity );
 		//add the actor to the scene
 		mScene->addActor( *mActor );
-		printf("Creation of the actor was a success!\n");
+		std::printf("Creation of the actor was a success!\n");
 		return mActor;
 		
 	}
-	//virtual physx::PxRigidDynamic* CreateActor( physx::PxVec3& position = PxVec3(0.f,100.f,0.f),
-	//											physx::PxReal sphereRadius = PxReal(10.f), 
-	//											physx::PxVec3& velocity = PxVec3(0.f, 0.f,0.f) )
-	//{
-	//	mPhysX->getMaterials( &mMaterial, 1 );
-	//	density = PxReal(150.f);
-	//	mSphereActor = mPhysX->createRigidDynamic( physx::PxTransform( position ) );
-	//	mSphereShape = mSphereActor->createShape( physx::PxSphereGeometry( sphereRadius ), *mMaterial );
-	//	mSphereActor->setMass( density );
-	//	physx::PxRigidBodyExt::updateMassAndInertia( *mSphereActor, density );
-	//	//specifying initial linear velocity
-	//	mSphereActor->setLinearVelocity( velocity );
-	//	//add the actor to the scene
-	//	mScene->addActor( *mSphereActor );
-	//	printf("Creation of the actor was a success!\n");
-	//	return mSphereActor;
-	//}
 	//Description
 	//This is a trial to pass the value of the scene
 	//to create an actor outside the base class
@@ -380,8 +395,8 @@ public:
 		limitPair->spring = 10.f;
 		limitPair->damping = 2.f;
 		mJoint = physx::PxFixedJointCreate(*mPhysX, 
-													actor1, actor1->getGlobalPose(), 
-													actor2, actor2->getGlobalPose());
+													actor1, actor2->getGlobalPose(), 
+													actor2, actor1->getGlobalPose());
 		mJoint->setConstraintFlag( PxConstraintFlag::eVISUALIZATION,true );
 		mJoint->setProjectionLinearTolerance(0.1f);
 		//mJoint->setLimit(*limitPair); // upper, lower, tolerance
@@ -587,14 +602,6 @@ public:
 			orientation *= QuatFromAxisAngle( rotation, rotation.Z);
 		//                      iV - tip           I          II              III     
 		PxVec3 verts[] = {PxVec3(0,7,0), PxVec3(10,0,0), PxVec3(-10,0,0), PxVec3(0,0,10)};
-		int j = 0;
-		for(int i = 0; i < 12; i += 3)
-		{
-			m_verts[i] = verts[j].x;
-			m_verts[i + 1] = verts[j].y;
-			m_verts[i + 2] = verts[j].z;
-			++j;
-		}
 		pyrDesc.points.count = 4;
 		pyrDesc.points.stride = sizeof(PxVec3);
 		pyrDesc.points.data = verts;
@@ -623,10 +630,6 @@ public:
 			return pyrAct;
 		}
 	return false;
-	}
-	virtual int*  getVertices()
-	{
-		return m_verts;
 	}
 
 	virtual physx::PxFoundation* FoundationCallback(){return mFoundation;}

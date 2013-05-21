@@ -171,8 +171,8 @@ bool ICustomEventReceiver::OnEvent( const irr::SEvent& event )
 					//if Key was not down before
 					if( m_EKeys[ event.KeyInput.Key] != Button_DOWN )
 						m_EKeys[event.KeyInput.Key] = Button_DOWN; //set the key to pressed value
-					else
-						m_EKeys[event.KeyInput.Key] = Button_PRESSED;
+					/*else
+						m_EKeys[event.KeyInput.Key] = Button_PRESSED;*/
 					//printf("Key pressed\n");
 				break;
 				}
@@ -181,8 +181,8 @@ bool ICustomEventReceiver::OnEvent( const irr::SEvent& event )
 					//if the key is down
 					if( m_EKeys[event.KeyInput.Key] != Button_UP )
 						m_EKeys[event.KeyInput.Key] = Button_UP; //set the key to released value
-					else
-						m_EKeys[event.KeyInput.Key] = Button_RELEASED;
+					/*else
+						m_EKeys[event.KeyInput.Key] = Button_RELEASED;*/
 					//printf("Key released\n");
 					break;
 				}
@@ -256,10 +256,10 @@ bool ICustomEventReceiver::OnEvent( const irr::SEvent& event )
 				case irr::EMIE_RMOUSE_PRESSED_DOWN:
 				{
 					if (m_EMouse[MButton_RIGHT] == MButton_UP || m_EMouse[MButton_RIGHT] == MButton_RELEASED)
-						m_EMouse[MButton_RIGHT] = MButton_PRESSED;
+						m_EMouse[MButton_RIGHT] = MButton_DOWN;
 
 					else
-						m_EMouse[MButton_RIGHT] = MButton_DOWN;
+						m_EMouse[MButton_RIGHT] = MButton_PRESSED;
 					break;
 				}
 
