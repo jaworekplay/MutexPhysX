@@ -1,13 +1,11 @@
 #pragma once
 #include <irrlicht.h>
-#include "MutexPhysX.h"
 #include "CCustomNode.h"
 #include "IrrlichtBase.h"
 #define deg PxPi
 
 
 using namespace irr;
-using namespace physx;
 
 class CIrrlichtBase;
 

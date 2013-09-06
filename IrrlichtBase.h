@@ -3,7 +3,6 @@
 
 using namespace irr;
 using namespace std;
-using namespace physx;
 
 enum eBodyParts
 {

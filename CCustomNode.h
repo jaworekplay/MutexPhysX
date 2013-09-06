@@ -1,7 +1,6 @@
 #pragma once
-#include "MutexPhysX.h"
+#include "../PhysXBase/PhysXBase.h"
 
-using namespace physx;
 using namespace irr;
 using namespace core;
 

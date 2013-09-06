@@ -20,14 +20,14 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v100</PlatformToolset>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v100</PlatformToolset>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -42,7 +42,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>D:\Irrlicht\PhysX 3.2.1\Include\RepX;D:\Irrlicht\PhysX 3.2.1\Source\foundation\include;D:\Irrlicht\PhysX 3.2.1\Samples\PxToolkit\include;D:\Irrlicht\irrlicht-1.7.3\source\Irrlicht;D:\Irrlicht\PhysX 3.2.1\Include;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;H:\Irrlicht\Source\irrKlang-1.4.0\include;H:\Irrlicht\Source\PhysX\Include;H:\Irrlicht\Source\irrlicht-1.7.3\include;D:\Irrlicht\irrlicht-1.7.3\include;D:\Irrlicht\APEX\framework\public;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Irrlicht\PhysX 3.2.1\Samples\PxToolkit\lib\win32;H:\Irrlicht\Source\irrKlang-1.4.0\lib\Win32-visualStudio;H:\Irrlicht\Source\PhysX\Lib\win32;H:\Irrlicht\Source\irrlicht-1.7.3\lib\Win32-visualstudio;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86;D:\Irrlicht\PhysX 3.2.1\Lib\win32;D:\Irrlicht\irrlicht-1.7.3\lib\Win32-visualstudio;C:\irrlicht-1.7.3\lib\Win32-visualstudio;D:\Irrlicht\APEX\lib\vc10win32-PhysX_3.2;$(LibraryPath)</LibraryPath>
+    <LibraryPath>E:\MutexPhysX\PhysXBase\Debug;D:\Irrlicht\PhysX 3.2.1\Samples\PxToolkit\lib\win32;H:\Irrlicht\Source\irrKlang-1.4.0\lib\Win32-visualStudio;H:\Irrlicht\Source\PhysX\Lib\win32;H:\Irrlicht\Source\irrlicht-1.7.3\lib\Win32-visualstudio;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86;D:\Irrlicht\PhysX 3.2.1\Lib\win32;D:\Irrlicht\irrlicht-1.7.3\lib\Win32-visualstudio;C:\irrlicht-1.7.3\lib\Win32-visualstudio;D:\Irrlicht\APEX\lib\vc10win32-PhysX_3.2;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -94,13 +94,10 @@
     <ClInclude Include="CCustomNode.h" />
     <ClInclude Include="CPhysXCloth.h" />
     <ClInclude Include="CPhysXNode.h" />
-    <ClInclude Include="documentation.h" />
     <ClInclude Include="ICustomEventReceiver.h" />
     <ClInclude Include="includes.h" />
     <ClInclude Include="INfo.h" />
     <ClInclude Include="IrrlichtBase.h" />
-    <ClInclude Include="libraries.h" />
-    <ClInclude Include="MutexPhysX.h" />
     <ClInclude Include="PhysxVehicle.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

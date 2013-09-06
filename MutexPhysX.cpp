@@ -1,6 +1,6 @@
-#include "MutexPhysX.h"	
 #include "ICustomEventReceiver.h"
 #include "IrrlichtBase.h"
+#include "../PhysXBase/PhysXBase.h"
 								
 physx::PxFoundation* initPhysX()
 {
